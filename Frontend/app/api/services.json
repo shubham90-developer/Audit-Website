@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "name": "Audit & Assurance",
+    "icon": "shield",
+    "desc": "Independent audits that ensure financial accuracy, transparency, and regulatory compliance.",
+    "services": [
+      {
+        "name": "External Audit",
+        "sub": "Statutory & Independent Audit",
+        "icon": "shield",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Internal Audit",
+        "sub": "Risk & Controls Review",
+        "icon": "activity",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Compliance Audit",
+        "sub": "Regulatory Compliance Checks",
+        "icon": "file",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Assurance Services",
+        "sub": "Independent Assurance",
+        "icon": "award",
+        "image": "/img/banner/1.jpg"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Tax Services",
+    "icon": "percent",
+    "desc": "Corporate tax, VAT, and transfer pricing solutions to simplify compliance and improve tax efficiency.",
+    "services": [
+      {
+        "name": "Corporate Tax",
+        "sub": "Registration & Filing",
+        "icon": "percent",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "VAT Services",
+        "sub": "Registration & Returns",
+        "icon": "file",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Transfer Pricing",
+        "sub": "Documentation & Compliance",
+        "icon": "globe",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Excise Tax",
+        "sub": "Registration & Compliance",
+        "icon": "trending",
+        "image": "/img/banner/1.jpg"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Advisory Services",
+    "icon": "briefcase",
+    "desc": "Build stronger controls, improve governance, and manage business risks with confidence.",
+    "services": [
+      {
+        "name": "Internal Controls",
+        "sub": "Design & Review",
+        "icon": "layers",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Corporate Governance",
+        "sub": "Policies & Frameworks",
+        "icon": "briefcase",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Risk Management",
+        "sub": "Identify & Mitigate Risks",
+        "icon": "activity",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "AML Compliance",
+        "sub": "Regulatory Support",
+        "icon": "shield",
+        "image": "/img/banner/1.jpg"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Consulting Services",
+    "icon": "trending",
+    "desc": "Strategic support for valuations, mergers, acquisitions, financial modelling, and IT audits.",
+    "services": [
+      {
+        "name": "Business Valuation",
+        "sub": "Independent Valuation",
+        "icon": "trending",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Mergers & Acquisitions",
+        "sub": "Deal & Due Diligence Support",
+        "icon": "globe",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Financial Modelling",
+        "sub": "Forecasts & Business Plans",
+        "icon": "book",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "IT Audit",
+        "sub": "Systems & Security Review",
+        "icon": "layers",
+        "image": "/img/banner/1.jpg"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Accounting & Other Services",
+    "icon": "book",
+    "desc": "Reliable bookkeeping, outsourced CFO services, litigation support, and specialised audits.",
+    "services": [
+      {
+        "name": "Bookkeeping",
+        "sub": "Monthly Books & Records",
+        "icon": "book",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Outsourced CFO",
+        "sub": "Finance Leadership On Demand",
+        "icon": "user",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Litigation Support",
+        "sub": "Forensic & Expert Support",
+        "icon": "file",
+        "image": "/img/banner/1.jpg"
+      },
+      {
+        "name": "Specialised Audits",
+        "sub": "Special Purpose Audits",
+        "icon": "shield",
+        "image": "/img/banner/1.jpg"
+      }
+    ]
+  }
+]

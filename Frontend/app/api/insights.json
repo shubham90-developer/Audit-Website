@@ -1,0 +1,56 @@
+{
+  "blogs": [
+    {
+      "title": "Permanent Establishment in UAE: When a Foreign Company Pays Corporate Tax",
+      "excerpt": "A foreign company has a permanent establishment in the UAE when it runs a fixed place of business or an agent habitually concludes contracts here.",
+      "date": "31 Oct 2026",
+      "slug": "permanent-establishment-uae",
+      "media": "/img/banner/1.jpg",
+      "featured": true
+    },
+    {
+      "title": "Do Freelancers and Sole Establishments Pay Corporate Tax in UAE?",
+      "excerpt": "Freelancers and sole establishment owners pay UAE corporate tax once business turnover crosses the AED 1 million threshold.",
+      "date": "28 Oct 2026",
+      "slug": "freelancers-corporate-tax-uae",
+      "media": "/img/banner/1.jpg",
+      "featured": false
+    },
+    {
+      "title": "Cloud Accounting for Small Businesses in the UAE: 2026 Guide",
+      "excerpt": "Cloud accounting keeps your books in online software you can open from anywhere, with real-time VAT-ready reports.",
+      "date": "24 Oct 2026",
+      "slug": "cloud-accounting-uae",
+      "media": "/img/banner/1.jpg",
+      "featured": false
+    },
+    {
+      "title": "Is Audit Mandatory in the UAE? CT & Free Zone Rules 2026",
+      "excerpt": "Check your revenue, your free zone status and your licence conditions to see if an audit is required for your company.",
+      "date": "17 Oct 2026",
+      "slug": "is-audit-mandatory-uae",
+      "media": "/img/banner/1.jpg",
+      "featured": false
+    }
+  ],
+  "press": [
+    {
+      "title": "Permanent Establishment in UAE: When a Foreign Company Pays Corporate Tax",
+      "excerpt": "A foreign company has a permanent establishment in the UAE when it runs a fixed place of business or an agent habitually concludes contracts here.",
+      "date": "31 Oct 2026",
+      "slug": "permanent-establishment-uae",
+      "media": "/img/banner/1.mp4",
+      "featured": true
+    }
+  ],
+  "videos": [
+    {
+      "title": "Is Audit Mandatory in the UAE? CT & Free Zone Rules 2026",
+      "excerpt": "Check your revenue, your free zone status and your licence conditions to see if an audit is required for your company.",
+      "date": "17 Oct 2026",
+      "slug": "is-audit-mandatory-uae-video",
+      "media": "/img/banner/1.mp4",
+      "featured": true
+    }
+  ]
+}

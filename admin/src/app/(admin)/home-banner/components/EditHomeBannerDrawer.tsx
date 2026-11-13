@@ -3,8 +3,8 @@
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { useUpdateBannerMutation } from '@/store/homeBanner'
-import type { Banner, BannerText, BannerFiles, Localized, MediaFieldName } from '@/store/homeBanner'
+import { useUpdateBannerMutation } from '@/store/bannerApi'
+import type { Banner, BannerText, BannerFiles, Localized, MediaFieldName } from '@/store/bannerApi'
 
 type Texts = Record<string, Localized>
 type Field = { key: string; label: string; multiline?: boolean }

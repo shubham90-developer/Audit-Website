@@ -1,31 +1,22 @@
-import dotenv from "dotenv";
+import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
-
 import cors from "cors";
-dotenv.config();
 
 import router from "./routes";
 
 const app = express();
 
-const DBConnection = async (): Promise<void> => {
-  try {
-    const MongoURI = process.env.MONGODB_URI;
+const connectDB = async (): Promise<void> => {
+  const mongoURI = process.env.MONGODB_URI;
 
-    if (!MongoURI) {
-      throw new Error("⚠ MongoDB URL is not defined!");
-    }
-
-    await mongoose.connect(MongoURI);
-
-    console.log("Connected Database");
-  } catch (error) {
-    console.error("MongoDB connection failed:", error);
-    process.exit(1);
+  if (!mongoURI) {
+    throw new Error("MongoDB URL is not defined!");
   }
+
+  await mongoose.connect(mongoURI);
+  console.log("Connected Database");
 };
-DBConnection();
 
 const allowedOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(",").map((o) => o.trim())
@@ -40,4 +31,5 @@ app.get("/", (req, res) => {
 
 app.use("/v1/api/", router);
 
+export { app, connectDB };
 export default app;

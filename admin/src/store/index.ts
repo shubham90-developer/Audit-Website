@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import authSlice from './authSlice'
 import { apiSlice } from './apiSlice'
 import { settingApi } from './settingApi'
-import { bannerApi } from './homeBanner'
+import { bannerApi } from './bannerApi'
 import { aboutUsApi } from './aboutUsApi'
 import { counterApi } from './counterApi'
 
@@ -18,6 +18,9 @@ import { categoryApi } from './categoriesApi'
 import ProductEnquiryApi from './productEnquiriesApi'
 import { whyChooseUsApi } from './whyChooseUsApi'
 import { howToOrderApi } from './howToOrderApi'
+import { partnerApi } from './partnerApi'
+import { whatWeDoApi } from './whatWeDoApi'
+import { whoWeServeApi } from './whoWeServeApi'
 
 export const store = configureStore({
   reducer: {
@@ -42,6 +45,9 @@ export const store = configureStore({
     [productsApi.reducerPath]: productsApi.reducer,
 
     [settingApi.reducerPath]: settingApi.reducer,
+    [partnerApi.reducerPath]: partnerApi.reducer,
+    [whatWeDoApi.reducerPath]: whatWeDoApi.reducer,
+    [whoWeServeApi.reducerPath]: whoWeServeApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(
@@ -59,6 +65,9 @@ export const store = configureStore({
       settingApi.middleware,
       whyChooseUsApi.middleware,
       howToOrderApi.middleware,
+      partnerApi.middleware,
+      whatWeDoApi.middleware,
+      whoWeServeApi.middleware,
     ),
 })
 

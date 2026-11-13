@@ -10,22 +10,22 @@ const TopNavigationBar = dynamic(() => import('@/components/layout/TopNavigation
 
 const AdminLayout = ({ children }: ChildrenType) => {
   return (
-    <AuthProtectionWrapper>
-      <div className="wrapper">
-        <Suspense>
-          <TopNavigationBar />
-        </Suspense>
+    // <AuthProtectionWrapper>
+    <div className="wrapper">
+      <Suspense>
+        <TopNavigationBar />
+      </Suspense>
 
-        <Suspense fallback={<FallbackLoading />}>
-          <VerticalNavigationBar />
-        </Suspense>
+      <Suspense fallback={<FallbackLoading />}>
+        <VerticalNavigationBar />
+      </Suspense>
 
-        <div className="page-content">
-          <div className="container-fluid">{children}</div>
-          <Footer />
-        </div>
+      <div className="page-content">
+        <div className="container-fluid">{children}</div>
+        <Footer />
       </div>
-    </AuthProtectionWrapper>
+    </div>
+    // </AuthProtectionWrapper>
   )
 }
 

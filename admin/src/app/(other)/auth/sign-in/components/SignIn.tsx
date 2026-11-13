@@ -26,8 +26,6 @@ const SignIn = () => {
 
             {/* FORM */}
             <LoginFrom />
-
-
           </div>
         </Col>
 
@@ -44,14 +42,10 @@ const SignIn = () => {
           />
 
           {/* TEXT */}
-   <div className="position-absolute bottom-0 p-5 text-white">
-  <h2 className="fw-bold text-white">
-    Nature’s Finest Dry Fruits & Nuts 🌰
-  </h2>
-  <p className="mb-0">
-    Discover premium quality nuts, seeds, and healthy snacks for everyday wellness.
-  </p>
-</div>
+          <div className="position-absolute bottom-0 p-5 text-white">
+            <h2 className="fw-bold text-white">Nature’s Finest Dry Fruits & Nuts 🌰</h2>
+            <p className="mb-0">Discover premium quality nuts, seeds, and healthy snacks for everyday wellness.</p>
+          </div>
         </Col>
       </Row>
     </div>

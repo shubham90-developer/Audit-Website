@@ -21,6 +21,10 @@ import { howToOrderApi } from './howToOrderApi'
 import { partnerApi } from './partnerApi'
 import { whatWeDoApi } from './whatWeDoApi'
 import { whoWeServeApi } from './whoWeServeApi'
+import { numbersPresenceApi } from './numbersPresenceApi'
+import { howWeWorkApi } from './howWeWorkApi'
+import { meetTheTeamApi } from './meettheteamapi'
+import { readyToWorkApi } from './readytoworkapi'
 
 export const store = configureStore({
   reducer: {
@@ -48,6 +52,10 @@ export const store = configureStore({
     [partnerApi.reducerPath]: partnerApi.reducer,
     [whatWeDoApi.reducerPath]: whatWeDoApi.reducer,
     [whoWeServeApi.reducerPath]: whoWeServeApi.reducer,
+    [numbersPresenceApi.reducerPath]: numbersPresenceApi.reducer,
+    [howWeWorkApi.reducerPath]: howWeWorkApi.reducer,
+    [meetTheTeamApi.reducerPath]: meetTheTeamApi.reducer,
+    [readyToWorkApi.reducerPath]: readyToWorkApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(
@@ -68,6 +76,10 @@ export const store = configureStore({
       partnerApi.middleware,
       whatWeDoApi.middleware,
       whoWeServeApi.middleware,
+      numbersPresenceApi.middleware,
+      howWeWorkApi.middleware,
+      meetTheTeamApi.middleware,
+      readyToWorkApi.middleware,
     ),
 })
 

@@ -1,0 +1,87 @@
+import { configureStore } from '@reduxjs/toolkit'
+import authSlice from './authSlice'
+import { apiSlice } from './apiSlice'
+import { settingApi } from './settingApi'
+import { bannerApi } from './bannerApi'
+import { aboutUsApi } from './aboutUsApi'
+import { counterApi } from './counterApi'
+
+import { faqApi } from './faqApi'
+
+import { privacyApi } from './privacyPolicyApi'
+import { contactApi } from './contactApi'
+
+import { termsApi } from './termsApi'
+import { productsApi } from './productsApi'
+
+import { categoryApi } from './categoriesApi'
+import ProductEnquiryApi from './productEnquiriesApi'
+import { whyChooseUsApi } from './whyChooseUsApi'
+import { howToOrderApi } from './howToOrderApi'
+import { partnerApi } from './partnerApi'
+import { whatWeDoApi } from './whatWeDoApi'
+import { whoWeServeApi } from './whoWeServeApi'
+import { numbersPresenceApi } from './numbersPresenceApi'
+import { howWeWorkApi } from './howWeWorkApi'
+import { meetTheTeamApi } from './meettheteamapi'
+import { readyToWorkApi } from './readytoworkapi'
+
+export const store = configureStore({
+  reducer: {
+    auth: authSlice,
+    [apiSlice.reducerPath]: apiSlice.reducer,
+    [categoryApi.reducerPath]: categoryApi.reducer,
+
+    [bannerApi.reducerPath]: bannerApi.reducer,
+    [aboutUsApi.reducerPath]: aboutUsApi.reducer,
+    [counterApi.reducerPath]: counterApi.reducer,
+    [ProductEnquiryApi.reducerPath]: ProductEnquiryApi.reducer,
+    [whyChooseUsApi.reducerPath]: whyChooseUsApi.reducer,
+    [howToOrderApi.reducerPath]: howToOrderApi.reducer,
+
+    [faqApi.reducerPath]: faqApi.reducer,
+
+    [privacyApi.reducerPath]: privacyApi.reducer,
+
+    [contactApi.reducerPath]: contactApi.reducer,
+
+    [termsApi.reducerPath]: termsApi.reducer,
+    [productsApi.reducerPath]: productsApi.reducer,
+
+    [settingApi.reducerPath]: settingApi.reducer,
+    [partnerApi.reducerPath]: partnerApi.reducer,
+    [whatWeDoApi.reducerPath]: whatWeDoApi.reducer,
+    [whoWeServeApi.reducerPath]: whoWeServeApi.reducer,
+    [numbersPresenceApi.reducerPath]: numbersPresenceApi.reducer,
+    [howWeWorkApi.reducerPath]: howWeWorkApi.reducer,
+    [meetTheTeamApi.reducerPath]: meetTheTeamApi.reducer,
+    [readyToWorkApi.reducerPath]: readyToWorkApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ serializableCheck: false }).concat(
+      apiSlice.middleware,
+      categoryApi.middleware,
+      bannerApi.middleware,
+      ProductEnquiryApi.middleware,
+      aboutUsApi.middleware,
+      counterApi.middleware,
+      faqApi.middleware,
+      privacyApi.middleware,
+      contactApi.middleware,
+      termsApi.middleware,
+      productsApi.middleware,
+      settingApi.middleware,
+      whyChooseUsApi.middleware,
+      howToOrderApi.middleware,
+      partnerApi.middleware,
+      whatWeDoApi.middleware,
+      whoWeServeApi.middleware,
+      numbersPresenceApi.middleware,
+      howWeWorkApi.middleware,
+      meetTheTeamApi.middleware,
+      readyToWorkApi.middleware,
+    ),
+})
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch

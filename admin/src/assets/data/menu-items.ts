@@ -83,6 +83,30 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/what-we-do',
   },
   {
+    key: 'numbers-presence',
+    label: 'Numbers & Presence',
+    icon: 'solar:globe-bold-duotone',
+    url: '/numbers-presence',
+  },
+  {
+    key: 'how-we-work',
+    label: 'How We Work',
+    icon: 'solar:routing-2-bold-duotone',
+    url: '/how-we-work',
+  },
+  {
+    key: 'meet-the-team',
+    label: 'Meet the Team',
+    icon: 'solar:users-group-rounded-bold-duotone',
+    url: '/meet-the-team',
+  },
+  {
+    key: 'ready-to-work',
+    label: 'Ready to Work',
+    icon: 'solar:phone-calling-bold-duotone',
+    url: '/ready-to-work',
+  },
+  {
     key: 'counter',
     label: 'Counter',
     icon: 'solar:chart-2-bold-duotone',

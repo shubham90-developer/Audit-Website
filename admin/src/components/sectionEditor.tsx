@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
-import { useUpdateSectionMutation } from '@/store/whatWeDoApi'
+import { useUpdateSectionMutation } from '@/store/numbersPresenceApi'
 import type { NumbersSection, SectionFiles, SectionText } from '@/store/numbersPresenceApi'
 import RichTextEditor from './RichTextEditor'
 

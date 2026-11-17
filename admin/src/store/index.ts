@@ -25,6 +25,13 @@ import { numbersPresenceApi } from './numbersPresenceApi'
 import { howWeWorkApi } from './howWeWorkApi'
 import { meetTheTeamApi } from './meettheteamapi'
 import { readyToWorkApi } from './readytoworkapi'
+import { industriesApi } from './industriesApi'
+import { whoWeAreApi } from './whoWeAreApi'
+import { ourStoryApi } from './ourStoryApi'
+import { globalMarketsApi } from './globalMarketsApi'
+import { leadershipApi } from './leadershipApi'
+import { servicesApi } from './servicesApi'
+import { testimonialApi } from './testimonialApi'
 
 export const store = configureStore({
   reducer: {
@@ -56,6 +63,13 @@ export const store = configureStore({
     [howWeWorkApi.reducerPath]: howWeWorkApi.reducer,
     [meetTheTeamApi.reducerPath]: meetTheTeamApi.reducer,
     [readyToWorkApi.reducerPath]: readyToWorkApi.reducer,
+    [industriesApi.reducerPath]: industriesApi.reducer,
+    [whoWeAreApi.reducerPath]: whoWeAreApi.reducer,
+    [ourStoryApi.reducerPath]: ourStoryApi.reducer,
+    [globalMarketsApi.reducerPath]: globalMarketsApi.reducer,
+    [leadershipApi.reducerPath]: leadershipApi.reducer,
+    [servicesApi.reducerPath]: servicesApi.reducer,
+    [testimonialApi.reducerPath]: testimonialApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(
@@ -80,6 +94,13 @@ export const store = configureStore({
       howWeWorkApi.middleware,
       meetTheTeamApi.middleware,
       readyToWorkApi.middleware,
+      industriesApi.middleware,
+      whoWeAreApi.middleware,
+      ourStoryApi.middleware,
+      globalMarketsApi.middleware,
+      leadershipApi.middleware,
+      servicesApi.middleware,
+      testimonialApi.middleware,
     ),
 })
 

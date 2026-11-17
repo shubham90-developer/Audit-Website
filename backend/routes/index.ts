@@ -8,6 +8,14 @@ import { numbersPresenceRouter } from "../modules/numbers-presence/numbersPresen
 import { howWeWorkRouter } from "../modules/how-we-work/howWeWorkRoute";
 import { meetTheTeamRouter } from "../modules/meet-the-team/meetTheTeamRoute";
 import { readyToWorkRouter } from "../modules/ready-to-work/readyToWorkRoute";
+import { industriesRouter } from "../modules/industries/industriesRoute";
+import { aboutUsRouter } from "../modules/about-us/aboutUsRoute";
+import { whoWeAreRouter } from "../modules/who-we-are/whoWeAreRoute";
+import { ourStoryRouter } from "../modules/our-story/routes";
+import { globalMarketsRouter } from "../modules/global-market/route";
+import { leadershipRouter } from "../modules/leadership/route";
+import { serviceRouter } from "../modules/services/route";
+import { testimonialRouter } from "../modules/testimonial/testimonial.routes";
 
 const router = Router();
 
@@ -43,6 +51,38 @@ const moduleRoutes = [
   {
     path: "/ready-to-work",
     route: readyToWorkRouter,
+  },
+  {
+    path: "/industries",
+    route: industriesRouter,
+  },
+  {
+    path: "/about-us",
+    route: aboutUsRouter,
+  },
+  {
+    path: "/who-we-are",
+    route: whoWeAreRouter,
+  },
+  {
+    path: "/our-story",
+    route: ourStoryRouter,
+  },
+  {
+    path: "/global-markets",
+    route: globalMarketsRouter,
+  },
+  {
+    path: "/leadership",
+    route: leadershipRouter,
+  },
+  {
+    path: "/services",
+    route: serviceRouter,
+  },
+  {
+    path: "/testimonials",
+    route: testimonialRouter,
   },
 ];
 

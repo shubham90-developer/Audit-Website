@@ -1,91 +1,140 @@
 "use client";
 
-import React from "react";
+import React, { useSyncExternalStore } from "react";
 import Image from "next/image";
 import ThemeBtn from "../components/ThemeBtn";
+import { useGetBannersQuery } from "../store/api/bannerApi";
 import { FaAward, FaGoogle, FaHandshake } from "react-icons/fa";
 import { SiTrustpilot } from "react-icons/si";
 import { BsShieldCheck } from "react-icons/bs";
 
 type Lang = "en" | "ar";
 
-const VIDEO_SRC = "/img/banner/1.mp4";
-const POSTER_SRC = "/images/dubai-hero.jpg";
-const LEFT_BG = "/img/banner/bg7.avif"; // text-side background image
+type Localized = {
+  en?: string;
+  ar?: string;
+};
 
-// LTR wave (video on the right) and its mirror for RTL (video on the left)
+type MediaItem = {
+  url?: string;
+  publicId?: string;
+};
+
+type LocalizedMedia = {
+  en?: MediaItem[];
+  ar?: MediaItem[];
+};
+
+type BannerRecord = {
+  titleHighlight?: Localized;
+  titleRest?: Localized;
+  intro?: Localized;
+  speakLabel?: Localized;
+  trustedNote?: Localized;
+
+  primaryCta?: {
+    label?: Localized;
+    href?: Localized;
+  };
+
+  secondaryCta?: {
+    label?: Localized;
+    href?: Localized;
+  };
+
+  ftaCard?: {
+    line1?: Localized;
+    line2?: Localized;
+    licenseNumber?: Localized;
+  };
+
+  partnerCard?: {
+    title?: Localized;
+    subtitle?: Localized;
+  };
+
+  experienceCard?: {
+    value?: Localized;
+    label?: Localized;
+    tagline?: Localized;
+  };
+
+  reviewRatings?: {
+    platform?: string;
+    score?: number;
+    label?: Localized;
+  }[];
+
+  bgImages?: LocalizedMedia;
+  bgVideos?: LocalizedMedia;
+  posterImage?: LocalizedMedia;
+};
+
 const WAVE_LTR = "M0.22,0 C0.12,0.12 0,0.25 0,0.38 C0,0.6 0.12,0.8 0,1";
+
 const WAVE_RTL = "M0.78,0 C0.88,0.12 1,0.25 1,0.38 C1,0.6 0.88,0.8 1,1";
 
-const t = {
-  en: {
-    titleHighlight: "Expert Advice ",
-    titleRest: "to Help You Grow",
-    intro:
-      "Independent audit, accounting and tax services for businesses across the UAE, from an Emirati firm with more than 25 years of experience.",
-    ctaCall: "Book Free 20-Min Call",
-    ctaTax: "Explore Tax Services",
-    speak: "— Speak Directly with an Expert —",
-    ftaLine1: "FTA Approved",
-    ftaLine2: "Tax Agency",
-    ftaNo: "No. 30008692",
-    partner: "Business Setup Partner",
-    partnerSub: "for Dubai Free Zones",
-    years: "25+ YEARS",
-    yearsSub: "of Experience",
-    yearsCount: "You Can Count On",
-    google: "from 200+ Google Reviews",
-    trustpilot: "from 75+ Trustpilot Reviews",
-    trusted:
-      "Trusted by 1,000+ Businesses in the UAE and worldwide to stay compliant and find the best opportunities.",
-  },
-  ar: {
-    titleHighlight: "نصائح الخبراء ",
-    titleRest: "لمساعدتك على النمو",
-    intro:
-      "خدمات تدقيق ومحاسبة وضرائب مستقلة للشركات في جميع أنحاء الإمارات، من شركة إماراتية تتمتع بخبرة تزيد عن 25 عامًا.",
-    ctaCall: "احجز مكالمة مجانية لمدة 20 دقيقة",
-    ctaTax: "استكشف الخدمات الضريبية",
-    speak: "— تحدّث مباشرة مع خبير —",
-    ftaLine1: "وكالة ضريبية",
-    ftaLine2: "معتمدة من الهيئة الاتحادية للضرائب",
-    ftaNo: "رقم 30008692",
-    partner: "شريك تأسيس الأعمال",
-    partnerSub: "للمناطق الحرة في دبي",
-    years: "+25 عامًا",
-    yearsSub: "من الخبرة",
-    yearsCount: "يمكنك الاعتماد عليها",
-    google: "من أكثر من 200 تقييم على Google",
-    trustpilot: "من أكثر من 75 تقييمًا على Trustpilot",
-    trusted:
-      "يثق بنا أكثر من 1,000 شركة في الإمارات وحول العالم للحفاظ على الامتثال واغتنام أفضل الفرص.",
-  },
-} as const;
+// Explicit Lang return type fixes the TypeScript error.
+const getLanguage = (): Lang => {
+  if (typeof document === "undefined") return "en";
 
-// Compact on mobile, full size from sm up.
+  return document.documentElement.lang === "ar" ? "ar" : "en";
+};
+
+const subscribeLanguage = (callback: () => void) => {
+  window.addEventListener("languagechange", callback);
+  window.addEventListener("storage", callback);
+
+  return () => {
+    window.removeEventListener("languagechange", callback);
+    window.removeEventListener("storage", callback);
+  };
+};
+
+const useLanguage = (): Lang =>
+  useSyncExternalStore(subscribeLanguage, getLanguage, (): Lang => "en");
+
+const localized = (field: Localized | undefined, lang: Lang): string =>
+  field?.[lang] ?? "";
+
+const mediaUrl = (
+  field: LocalizedMedia | undefined,
+  lang: Lang,
+): string | undefined => field?.[lang]?.find((item) => Boolean(item?.url))?.url;
+
 const TrustCard = ({ children }: { children: React.ReactNode }) => (
   <div className="flex min-h-28 flex-col items-center justify-center rounded-xl border border-[#00852B] bg-white/10 px-2 py-3 text-center text-xs text-white shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#00A63C] hover:shadow-md sm:min-h-36 sm:px-3 sm:py-4 lg:bg-[#111]/80">
     {children}
   </div>
 );
 
-// Icons inherit this font size (1em), so one class controls them all.
 const IconBox = ({ children }: { children: React.ReactNode }) => (
   <div className="mb-2 flex h-9 items-center justify-center text-4xl text-[#fab923] sm:mb-3 sm:h-14 sm:text-5xl">
     {children}
   </div>
 );
 
-const Review = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
+const Review = ({
+  icon,
+  label,
+  score,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  score?: number;
+}) => (
   <div className="flex w-full items-center justify-center gap-1.5 sm:gap-2">
     {icon}
+
     <div className="text-start">
       <div className="flex items-center gap-1">
-        <span className="text-base font-bold sm:text-lg">4.8</span>
+        <span className="text-base font-bold sm:text-lg">{score ?? "—"}</span>
+
         <span className="text-xs tracking-tight text-[#FBBF24] sm:text-sm">
           ★★★★★
         </span>
       </div>
+
       <p className="text-[9px] leading-3.5 text-white/70 sm:text-[10px] sm:leading-4">
         {label}
       </p>
@@ -93,36 +142,149 @@ const Review = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
   </div>
 );
 
-const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
+const BannerSkeleton = () => (
+  <section
+    className="relative overflow-hidden bg-[#111] text-white"
+    aria-busy="true"
+    aria-label="Loading banner"
+  >
+    <div className="mx-auto max-w-8xl px-4 pb-24 pt-12 sm:px-8 md:pb-28 lg:px-10 lg:pt-20">
+      <div className="animate-pulse lg:w-[55%]">
+        <div className="mb-4 h-12 w-4/5 rounded-lg bg-white/10" />
+        <div className="mb-6 h-12 w-3/5 rounded-lg bg-white/10" />
+
+        <div className="my-5 h-1 w-20 rounded-full bg-white/10" />
+
+        <div className="mb-3 h-4 w-full rounded bg-white/10" />
+        <div className="mb-3 h-4 w-11/12 rounded bg-white/10" />
+        <div className="mb-6 h-4 w-3/4 rounded bg-white/10" />
+
+        <div className="mt-6 flex gap-3">
+          <div className="h-11 w-44 rounded-full bg-white/10" />
+          <div className="h-11 w-44 rounded-full bg-white/10" />
+        </div>
+
+        <div className="mt-5 h-4 w-52 rounded bg-white/10" />
+
+        <div className="mt-8 grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex min-h-28 flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 sm:min-h-36"
+            >
+              <div className="h-10 w-10 rounded-full bg-white/10" />
+              <div className="h-4 w-3/4 rounded bg-white/10" />
+              <div className="h-4 w-1/2 rounded bg-white/10" />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 h-4 w-full rounded bg-white/10" />
+      </div>
+    </div>
+  </section>
+);
+
+const HomeBanner = () => {
+  const lang = useLanguage();
+
+  const { data, isLoading, isFetching, isError, refetch } =
+    useGetBannersQuery();
+
+  if (isLoading) {
+    return <BannerSkeleton />;
+  }
+
+  if (isError && !data) {
+    return (
+      <section className="flex min-h-80 flex-col items-center justify-center gap-4 bg-[#111] px-4 text-center text-white">
+        <p className="text-sm">
+          {lang === "ar"
+            ? "تعذر تحميل بيانات الصفحة الرئيسية"
+            : "Unable to load homepage banner."}
+        </p>
+
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="rounded-full bg-[#00852B] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#00A63C]"
+        >
+          {lang === "ar" ? "إعادة المحاولة" : "Try Again"}
+        </button>
+      </section>
+    );
+  }
+
+  const response: unknown = data;
+
+  const banners: BannerRecord[] = Array.isArray(response)
+    ? (response as BannerRecord[])
+    : response &&
+        typeof response === "object" &&
+        "data" in response &&
+        Array.isArray(response.data)
+      ? (response.data as BannerRecord[])
+      : [];
+
+  const banner = banners[0];
+
+  if (!banner) {
+    return (
+      <section className="flex min-h-72 items-center justify-center bg-[#111] px-4 text-center text-white">
+        <p className="text-sm text-white/70">
+          {lang === "ar"
+            ? "لا توجد بيانات للبانر حالياً"
+            : "No banner content is available."}
+        </p>
+      </section>
+    );
+  }
+
   const isRtl = lang === "ar";
-  const tr = t[lang];
+
   const wave = isRtl ? WAVE_RTL : WAVE_LTR;
-  // Closing edge of the clip shape: opposite side of the wave
+
   const clipPath = isRtl ? `${wave} L0,1 L0,0 Z` : `${wave} L1,1 L1,0 Z`;
+
   const clipId = isRtl ? "wave-clip-rtl" : "wave-clip";
+
+  const backgroundImage = mediaUrl(banner.bgImages, lang);
+  const backgroundVideo = mediaUrl(banner.bgVideos, lang);
+  const posterImage = mediaUrl(banner.posterImage, lang);
+
+  const googleReview = banner.reviewRatings?.find(
+    (item) => item.platform === "google",
+  );
+
+  const trustpilotReview = banner.reviewRatings?.find(
+    (item) => item.platform === "trustpilot",
+  );
 
   return (
     <section
       dir={isRtl ? "rtl" : "ltr"}
       lang={lang}
+      aria-busy={isFetching}
       className="relative bg-[#111] text-white"
     >
-      {/* Text-side background image (desktop only) */}
+      {/* Text-side background image */}
       <div className="absolute inset-0 hidden lg:block">
-        <Image
-          src={LEFT_BG}
-          alt=""
-          fill
-          sizes="100vw"
-          className={`object-cover ${isRtl ? "object-right" : "object-left"}`}
-        />
-        {/* dark gradient keeps the text readable and fades toward the video */}
+        {backgroundImage && (
+          <Image
+            src={backgroundImage}
+            alt=""
+            fill
+            sizes="100vw"
+            className={`object-cover ${isRtl ? "object-right" : "object-left"}`}
+          />
+        )}
+
         <div
           className={`absolute inset-0 from-[#111]/95 via-[#111]/80 to-[#111]/40 ${
             isRtl ? "bg-linear-to-l" : "bg-linear-to-r"
           }`}
         />
-        {/* soft green glow on the text side */}
+
         <div
           className={`absolute inset-0 from-[#00852B]/20 via-transparent to-transparent ${
             isRtl ? "bg-linear-to-l" : "bg-linear-to-r"
@@ -130,8 +292,7 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
         />
       </div>
 
-      {/* Background video: full on mobile/tablet, half with wave on desktop.
-          Sits at the inline-end edge (right in LTR, left in RTL). */}
+      {/* Background video */}
       <div className="absolute inset-0 lg:inset-s-auto lg:w-1/2">
         <svg width="0" height="0" className="absolute">
           <clipPath id={clipId} clipPathUnits="objectBoundingBox">
@@ -139,22 +300,24 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
           </clipPath>
         </svg>
 
-        <video
-          className={`h-full w-full object-cover ${
-            isRtl
-              ? "lg:[clip-path:url(#wave-clip-rtl)]"
-              : "lg:[clip-path:url(#wave-clip)]"
-          }`}
-          src={VIDEO_SRC}
-          poster={POSTER_SRC}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-        />
+        {backgroundVideo && (
+          <video
+            key={`${lang}-${backgroundVideo}`}
+            className={`h-full w-full object-cover ${
+              isRtl
+                ? "lg:[clip-path:url(#wave-clip-rtl)]"
+                : "lg:[clip-path:url(#wave-clip)]"
+            }`}
+            src={backgroundVideo}
+            poster={posterImage}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          />
+        )}
 
-        {/* Overlay: dark on mobile for readability, light gradient on desktop */}
         <div
           className={`absolute inset-0 bg-[#111]/75 lg:bg-transparent lg:from-white/20 lg:via-transparent lg:to-transparent ${
             isRtl
@@ -163,7 +326,6 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
           }`}
         />
 
-        {/* Wave outline (desktop only) */}
         <svg
           viewBox="0 0 1 1"
           preserveAspectRatio="none"
@@ -179,7 +341,7 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
         </svg>
       </div>
 
-      {/* Content */}
+      {/* Banner content */}
       <div className="relative z-10 mx-auto max-w-8xl px-4 pb-24 pt-12 sm:px-8 md:pb-28 lg:px-10 lg:pt-20">
         <div className="lg:w-[55%]">
           <h1
@@ -187,8 +349,10 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
               isRtl ? "leading-snug sm:leading-snug" : "leading-tight"
             }`}
           >
-            <span className="text-[#00852B]">{tr.titleHighlight}</span>
-            {tr.titleRest}
+            <span className="text-[#00852B]">
+              {localized(banner.titleHighlight, lang)}
+            </span>{" "}
+            {localized(banner.titleRest, lang)}
           </h1>
 
           <div className="my-5 flex h-1 w-20 overflow-hidden rounded-full">
@@ -196,28 +360,39 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
             <span className="w-1/3 bg-[#F20D18]" />
           </div>
 
-          <p className="max-w-lg text-sm leading-7">{tr.intro}</p>
+          <p className="max-w-lg text-sm leading-7">
+            {localized(banner.intro, lang)}
+          </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <ThemeBtn>{tr.ctaCall}</ThemeBtn>
-            <ThemeBtn>{tr.ctaTax}</ThemeBtn>
+            {banner.primaryCta?.label?.[lang] && (
+              <ThemeBtn>{localized(banner.primaryCta.label, lang)}</ThemeBtn>
+            )}
+
+            {banner.secondaryCta?.label?.[lang] && (
+              <ThemeBtn>{localized(banner.secondaryCta.label, lang)}</ThemeBtn>
+            )}
           </div>
 
-          <p className="mt-3 text-xs font-medium">{tr.speak}</p>
+          <p className="mt-3 text-xs font-medium">
+            {localized(banner.speakLabel, lang)}
+          </p>
 
-          {/* Trust Cards */}
+          {/* Trust cards */}
           <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:gap-4 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
             <TrustCard>
               <IconBox>
                 <BsShieldCheck />
               </IconBox>
+
               <h3 className="text-xs font-bold leading-4 sm:min-h-11 sm:text-sm sm:leading-5">
-                {tr.ftaLine1}
+                {localized(banner.ftaCard?.line1, lang)}
                 <br />
-                {tr.ftaLine2}
+                {localized(banner.ftaCard?.line2, lang)}
               </h3>
+
               <span className="mt-2 rounded-full bg-[#00852B] px-3 py-1 text-[10px] font-bold sm:mt-3 sm:px-5 sm:py-1.5 sm:text-xs">
-                {tr.ftaNo}
+                {localized(banner.ftaCard?.licenseNumber, lang)}
               </span>
             </TrustCard>
 
@@ -225,11 +400,13 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
               <IconBox>
                 <FaHandshake />
               </IconBox>
+
               <h3 className="flex items-center text-xs font-bold leading-4 sm:min-h-11 sm:text-sm sm:leading-5">
-                {tr.partner}
+                {localized(banner.partnerCard?.title, lang)}
               </h3>
+
               <p className="mt-2 text-[11px] leading-4 text-white/70 sm:mt-3 sm:text-xs sm:leading-5">
-                {tr.partnerSub}
+                {localized(banner.partnerCard?.subtitle, lang)}
               </p>
             </TrustCard>
 
@@ -237,14 +414,17 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
               <IconBox>
                 <FaAward />
               </IconBox>
+
               <h3 className="text-2xl font-extrabold text-[#20C968] sm:text-3xl">
-                {tr.years}
+                {localized(banner.experienceCard?.value, lang)}
               </h3>
+
               <p className="mt-1 text-xs font-semibold sm:mt-2 sm:text-sm">
-                {tr.yearsSub}
+                {localized(banner.experienceCard?.label, lang)}
               </p>
+
               <p className="mt-1 text-[11px] font-bold text-[#F20D18] sm:mt-2 sm:text-xs">
-                {tr.yearsCount}
+                {localized(banner.experienceCard?.tagline, lang)}
               </p>
             </TrustCard>
 
@@ -254,14 +434,18 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
                   icon={
                     <FaGoogle className="shrink-0 text-2xl text-[#4285F4] sm:text-3xl" />
                   }
-                  label={tr.google}
+                  label={localized(googleReview?.label, lang)}
+                  score={googleReview?.score}
                 />
+
                 <div className="h-px w-full bg-white/15" />
+
                 <Review
                   icon={
                     <SiTrustpilot className="shrink-0 text-2xl text-[#00B67A] sm:text-3xl" />
                   }
-                  label={tr.trustpilot}
+                  label={localized(trustpilotReview?.label, lang)}
+                  score={trustpilotReview?.score}
                 />
               </div>
             </TrustCard>
@@ -269,7 +453,8 @@ const HomeBanner = ({ lang = "en" }: { lang?: Lang }) => {
 
           <p className="mt-5 flex items-start gap-2 text-xs leading-6">
             <BsShieldCheck size={16} className="mt-1 shrink-0 text-[#fab923]" />
-            {tr.trusted}
+
+            {localized(banner.trustedNote, lang)}
           </p>
         </div>
       </div>

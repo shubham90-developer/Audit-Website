@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import HomeBanner from "./pages/HomeBanner";
 import Counter from "./about/components/Counter";
 import WhatWeDo from "./pages/WhatWeDo";
@@ -10,11 +12,17 @@ import IntroVideo from "./pages/IntroVideo";
 import ReadyToWork from "./pages/ReadyToWork";
 import SlidingText from "./pages/SlidingText";
 
-const page = () => {
+const Page = () => {
   return (
     <>
-      <HomeBanner />
-      <Partnership />
+      <Suspense fallback={null}>
+        <HomeBanner />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <Partnership />
+      </Suspense>
+
       <WhatWeDo />
       <SlidingText />
       <WhoWeServe />
@@ -28,4 +36,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

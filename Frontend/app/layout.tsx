@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
+
 import TopBar from "./components/TopBar";
 import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+import LanguageToggle from "./components/LanguageToggle";
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Footer from "./components/Footer";
+
 import { Suspense } from "react";
-import LanguageToggle from "./components/LanguageToggle";
+import StoreProvider from "./store/StoreProvider";
+
 const nunitoSans = Nunito_Sans({
   variable: "--font-nunito-sans",
   subsets: ["latin"],
@@ -27,13 +32,19 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${nunitoSans.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
-        <TopBar />
-        <Suspense fallback={<nav className="h-16 w-full bg-[#210052]" />}>
-          <NavBar />
-        </Suspense>
-        {children}
-        <LanguageToggle />
-        <Footer />
+        <StoreProvider>
+          <TopBar />
+
+          <Suspense fallback={<nav className="h-16 w-full bg-[#210052]" />}>
+            <NavBar />
+          </Suspense>
+
+          {children}
+
+          <LanguageToggle />
+
+          <Footer />
+        </StoreProvider>
       </body>
     </html>
   );

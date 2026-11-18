@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "./baseApi";
 
 export type Localized<T = string> = {
   en: T;
@@ -25,15 +25,7 @@ interface PartnersResponse {
   message?: string;
 }
 
-export const partnerApi = createApi({
-  reducerPath: "partnerApi",
-
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/`,
-  }),
-
-  tagTypes: ["Partner"],
-
+export const partnerApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPartners: builder.query<Partner[], void>({
       query: () => "partners",
@@ -43,8 +35,7 @@ export const partnerApi = createApi({
 
         return [...partners].sort((a, b) => a.order - b.order);
       },
-
-      providesTags: ["Partner"],
+      providesTags: ["WebsiteContent"],
     }),
   }),
 });

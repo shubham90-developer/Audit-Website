@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "nodemon",
-    "start": "tsx server.ts"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "cloudinary": "^2.11.0",

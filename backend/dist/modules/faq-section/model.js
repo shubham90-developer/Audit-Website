@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FaqSection = void 0;
+const mongoose_1 = require("mongoose");
+const localized = new mongoose_1.Schema({ en: { type: String, default: '' }, ar: { type: String, default: '' } }, { _id: false });
+const media = new mongoose_1.Schema({ url: { type: String, default: '' }, publicId: { type: String, default: '' } }, { _id: false });
+const bilingualMedia = new mongoose_1.Schema({ en: { type: media, default: () => ({}) }, ar: { type: media, default: () => ({}) } }, { _id: false });
+const question = new mongoose_1.Schema({ question: { type: localized, required: true }, answer: { type: localized, required: true }, order: { type: Number, default: 0 }, active: { type: Boolean, default: true } }, { timestamps: true });
+const category = new mongoose_1.Schema({ name: { type: localized, required: true }, order: { type: Number, default: 0 }, active: { type: Boolean, default: true }, questions: { type: [question], default: [] } }, { timestamps: true });
+const schema = new mongoose_1.Schema({ singleton: { type: String, default: 'faq-page', unique: true }, title: { type: localized, required: true }, description: { type: localized, required: true }, breadcrumbHome: { type: localized, required: true }, exploreLabel: { type: localized, required: true }, questionsLabel: { type: localized, required: true }, emptyLabel: { type: localized, required: true }, ctaTitle: { type: localized, required: true }, ctaDescription: { type: localized, required: true }, ctaButton: { type: localized, required: true }, backgroundImage: { type: bilingualMedia, default: () => ({}) }, categories: { type: [category], default: [] } }, { timestamps: true });
+exports.FaqSection = mongoose_1.models.FaqSection || (0, mongoose_1.model)('FaqSection', schema);

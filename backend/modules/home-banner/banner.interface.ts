@@ -53,18 +53,23 @@ export interface IReviewRating {
 export type BannerTextData = {
   establishmentYear: ILocalizedString;
 
-  titleHighlight: ILocalizedString; // "Expert Advice" / "نصائح الخبراء" (store without trailing space)
-  titleRest: ILocalizedString; // "to Help You Grow" / "لمساعدتك على النمو"
-  intro: ILocalizedString;
-  speakLabel: ILocalizedString; // "— Speak Directly with an Expert —"
+  // New rich-text title
+  title?: ILocalizedString;
 
-  primaryCta: ICtaButton; // "Book Free 20-Min Call"
-  secondaryCta: ICtaButton; // "Explore Tax Services"
+  // Existing fields retained for compatibility
+  titleHighlight: ILocalizedString;
+  titleRest: ILocalizedString;
+
+  intro: ILocalizedString;
+  speakLabel: ILocalizedString;
+
+  primaryCta: ICtaButton;
+  secondaryCta: ICtaButton;
 
   ftaCard: IFtaCard;
   partnerCard: IPartnerCard;
   experienceCard: IExperienceCard;
-  reviewRatings: IReviewRating[]; // Google and Trustpilot
+  reviewRatings: IReviewRating[];
 
   trustedNote: ILocalizedString;
 };

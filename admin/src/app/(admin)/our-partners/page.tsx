@@ -1,19 +1,45 @@
 'use client'
 
-import React from 'react'
-import { useGetPartnersQuery } from '@/store/partnerApi'
+import React, { useState } from 'react'
+import { useGetPartnersQuery, useDeletePartnerMutation } from '@/store/partnerApi'
+
 import EditPartnerDrawer from './editPartner'
 import AddPartnerDrawer from './add-partner'
 
 const PartnersPage = () => {
   const { data: partners = [], isLoading, isError, refetch } = useGetPartnersQuery()
 
-  if (isLoading) return <div className="p-3 text-muted">Loading partners...</div>
+  const [deletePartner] = useDeletePartnerMutation()
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState('')
+
+  const handleDelete = async (id: string, title: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)
+
+    if (!confirmed) return
+
+    setDeletingId(id)
+    setDeleteError('')
+
+    try {
+      await deletePartner(id).unwrap()
+    } catch (error) {
+      console.error('Failed to delete partner:', error)
+      setDeleteError(`Unable to delete "${title}". Please try again.`)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  if (isLoading) {
+    return <div className="p-3 text-muted">Loading partners...</div>
+  }
 
   if (isError) {
     return (
       <div className="p-3">
         <p className="text-danger mb-2">Could not load partners.</p>
+
         <button type="button" className="btn btn-sm btn-light" onClick={() => refetch()}>
           Try again
         </button>
@@ -21,19 +47,29 @@ const PartnersPage = () => {
     )
   }
 
-  // New partners go after the highest existing order
   const nextOrder = partners.length === 0 ? 0 : Math.max(...partners.map((p) => p.order)) + 1
 
   return (
     <div className="p-3">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h5 className="fw-bold mb-0">Partnership ({partners.length})</h5>
+
         <AddPartnerDrawer nextOrder={nextOrder} />
       </div>
 
+      {deleteError && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+          <span>{deleteError}</span>
+
+          <button type="button" className="btn-close" aria-label="Close" onClick={() => setDeleteError('')} />
+        </div>
+      )}
+
       <div className="list-group">
         {partners.map((p) => {
-          const thumb = p.logo.en[0]?.url ?? p.logo.ar[0]?.url
+          const thumb = p.logo?.en?.[0]?.url ?? p.logo?.ar?.[0]?.url
+
+          const isDeleting = deletingId === p._id
 
           return (
             <div key={p._id} className="list-group-item d-flex align-items-center gap-3">
@@ -46,13 +82,32 @@ const PartnersPage = () => {
 
               <div className="flex-grow-1">
                 <div className="fw-semibold">{p.title.en}</div>
+
                 <div className="fw-semibold text-muted small" dir="rtl" lang="ar">
                   {p.title.ar}
                 </div>
+
                 <div className="small text-muted">Order: {p.order}</div>
               </div>
 
-              <EditPartnerDrawer item={p} />
+              <div className="d-flex align-items-center gap-2">
+                <EditPartnerDrawer item={p} />
+
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger"
+                  disabled={deletingId !== null}
+                  onClick={() => handleDelete(p._id, p.title.en)}>
+                  {isDeleting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-1" aria-hidden="true" />
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete'
+                  )}
+                </button>
+              </div>
             </div>
           )
         })}

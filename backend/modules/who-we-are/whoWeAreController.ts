@@ -60,7 +60,10 @@ const DEFAULT_ITEMS: {
     icon: "award",
     label: { en: "Established", ar: "تأسست" },
     value: { en: "Since 2000", ar: "منذ 2000" },
-    note: { en: "UAE National-owned audit firm", ar: "شركة تدقيق مملوكة لمواطنين إماراتيين" },
+    note: {
+      en: "UAE National-owned audit firm",
+      ar: "شركة تدقيق مملوكة لمواطنين إماراتيين",
+    },
   },
   {
     icon: "badge",
@@ -81,7 +84,10 @@ const DEFAULT_ITEMS: {
     icon: "globe",
     label: { en: "Coverage", ar: "التغطية" },
     value: { en: "All 7 Emirates", ar: "جميع الإمارات السبع" },
-    note: { en: "Serving clients across the UAE", ar: "نخدم عملاء في مختلف أنحاء الدولة" },
+    note: {
+      en: "Serving clients across the UAE",
+      ar: "نخدم عملاء في مختلف أنحاء الدولة",
+    },
   },
   {
     icon: "layers",
@@ -146,7 +152,9 @@ export const updateSection = async (req: Request, res: Response) => {
   try {
     const parsed = updateSectionSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ status: "error", message: zodMessage(parsed.error) });
+      res
+        .status(400)
+        .json({ status: "error", message: zodMessage(parsed.error) });
       return;
     }
 
@@ -173,7 +181,9 @@ export const createItem = async (req: Request, res: Response) => {
   try {
     const parsed = createItemSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ status: "error", message: zodMessage(parsed.error) });
+      res
+        .status(400)
+        .json({ status: "error", message: zodMessage(parsed.error) });
       return;
     }
 
@@ -212,18 +222,22 @@ export const updateItem = async (req: Request, res: Response) => {
 
     const parsed = updateItemSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ status: "error", message: zodMessage(parsed.error) });
+      res
+        .status(400)
+        .json({ status: "error", message: zodMessage(parsed.error) });
       return;
     }
 
     const section = await findSection();
-    const item = section?.snapshotItems.id(itemId);
+    const item = section?.snapshotItems.find(
+      (entry) => String(entry._id) === String(itemId),
+    );
     if (!section || !item) {
       res.status(404).json({ status: "error", message: "Item not found" });
       return;
     }
 
-    item.set(parsed.data);
+    Object.assign(item, parsed.data);
     await section.save();
 
     res.status(200).json({ status: "success", data: item });
@@ -242,12 +256,22 @@ export const deleteItem = async (req: Request, res: Response) => {
     }
 
     const section = await findSection();
-    if (!section || !section.snapshotItems.id(itemId)) {
+    if (
+      !section ||
+      !section.snapshotItems.some(
+        (entry) => String(entry._id) === String(itemId),
+      )
+    ) {
       res.status(404).json({ status: "error", message: "Item not found" });
       return;
     }
 
-    section.snapshotItems.pull(itemId);
+    section.snapshotItems.splice(
+      section.snapshotItems.findIndex(
+        (entry) => String(entry._id) === String(itemId),
+      ),
+      1,
+    );
     await section.save();
 
     res.status(200).json({ status: "success", message: "Item deleted" });

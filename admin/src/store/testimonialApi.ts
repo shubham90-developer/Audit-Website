@@ -25,15 +25,7 @@ export interface TestimonialSection {
 export const testimonialApi = createApi({
   reducerPath: 'testimonialApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1/api',
-    credentials: 'include',
-    prepareHeaders: (headers) => {
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('adminToken')
-        if (token) headers.set('authorization', `Bearer ${token}`)
-      }
-      return headers
-    },
+    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}`,
   }),
   tagTypes: ['TestimonialSection'],
   endpoints: (builder) => ({

@@ -6,8 +6,6 @@ import { bannerApi } from './bannerApi'
 import { aboutUsApi } from './aboutUsApi'
 import { counterApi } from './counterApi'
 
-import { faqApi } from './faqApi'
-
 import { privacyApi } from './privacyPolicyApi'
 import { contactApi } from './contactApi'
 
@@ -32,6 +30,12 @@ import { globalMarketsApi } from './globalMarketsApi'
 import { leadershipApi } from './leadershipApi'
 import { servicesApi } from './servicesApi'
 import { testimonialApi } from './testimonialApi'
+import { faqSectionApi } from './faqSectionApi'
+import { blogApi } from './blogApi'
+import { enquiryApi } from './enquiryApi'
+import { contactContentApi } from './contactContentApi'
+import { legalPageApi } from './legalPageApi'
+import { siteSettingsApi } from './siteSettingsApi'
 
 export const store = configureStore({
   reducer: {
@@ -46,7 +50,7 @@ export const store = configureStore({
     [whyChooseUsApi.reducerPath]: whyChooseUsApi.reducer,
     [howToOrderApi.reducerPath]: howToOrderApi.reducer,
 
-    [faqApi.reducerPath]: faqApi.reducer,
+    [faqSectionApi.reducerPath]: faqSectionApi.reducer,
 
     [privacyApi.reducerPath]: privacyApi.reducer,
 
@@ -70,6 +74,11 @@ export const store = configureStore({
     [leadershipApi.reducerPath]: leadershipApi.reducer,
     [servicesApi.reducerPath]: servicesApi.reducer,
     [testimonialApi.reducerPath]: testimonialApi.reducer,
+    [blogApi.reducerPath]: blogApi.reducer,
+    [enquiryApi.reducerPath]: enquiryApi.reducer,
+    [contactContentApi.reducerPath]: contactContentApi.reducer,
+    [legalPageApi.reducerPath]: legalPageApi.reducer,
+    [siteSettingsApi.reducerPath]: siteSettingsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(
@@ -79,7 +88,7 @@ export const store = configureStore({
       ProductEnquiryApi.middleware,
       aboutUsApi.middleware,
       counterApi.middleware,
-      faqApi.middleware,
+      faqSectionApi.middleware,
       privacyApi.middleware,
       contactApi.middleware,
       termsApi.middleware,
@@ -101,6 +110,11 @@ export const store = configureStore({
       leadershipApi.middleware,
       servicesApi.middleware,
       testimonialApi.middleware,
+      blogApi.middleware,
+      enquiryApi.middleware,
+      contactContentApi.middleware,
+      legalPageApi.middleware,
+      siteSettingsApi.middleware,
     ),
 })
 

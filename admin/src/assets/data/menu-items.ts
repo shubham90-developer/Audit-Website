@@ -143,6 +143,30 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/about-us',
   },
   {
+    key: 'blogs',
+    label: 'Blogs',
+    icon: 'solar:users-group-rounded-bold-duotone',
+    url: '/blogs',
+  },
+  {
+    key: 'enquiries',
+    label: 'Enquiries',
+    icon: 'solar:users-group-rounded-bold-duotone',
+    url: '/enquiries',
+  },
+  {
+    key: 'enquiries',
+    label: 'Contact Us',
+    icon: 'solar:users-group-rounded-bold-duotone',
+    url: '/contact-us',
+  },
+  {
+    key: 'P&T',
+    label: 'P&T',
+    icon: 'solar:users-group-rounded-bold-duotone',
+    url: '/P&T',
+  },
+  {
     key: 'ready-to-work',
     label: 'Ready to Work',
     icon: 'solar:phone-calling-bold-duotone',

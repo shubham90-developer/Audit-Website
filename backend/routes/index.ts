@@ -16,6 +16,12 @@ import { globalMarketsRouter } from "../modules/global-market/route";
 import { leadershipRouter } from "../modules/leadership/route";
 import { serviceRouter } from "../modules/services/route";
 import { testimonialRouter } from "../modules/testimonial/testimonial.routes";
+import { faqSectionRouter } from "../modules/faq-section/route";
+import { blogRouter } from "../modules/blog/blog.routes";
+import { enquiryRouter } from "../modules/enquiries/enquiry.routes";
+import { contactContentRouter } from "../modules/contact-content/route";
+import { legalPageRouter } from "../modules/P&T/legal.routes";
+import { siteSettingsRouter } from "../modules/settings/route";
 
 const router = Router();
 
@@ -83,6 +89,30 @@ const moduleRoutes = [
   {
     path: "/testimonials",
     route: testimonialRouter,
+  },
+  {
+    path: "/faq",
+    route: faqSectionRouter,
+  },
+  {
+    path: "/blog",
+    route: blogRouter,
+  },
+  {
+    path: "/enquiries",
+    route: enquiryRouter,
+  },
+  {
+    path: "/contact-content",
+    route: contactContentRouter,
+  },
+  {
+    path: "/legal-pages",
+    route: legalPageRouter,
+  },
+  {
+    path: "/settings",
+    route: siteSettingsRouter,
   },
 ];
 

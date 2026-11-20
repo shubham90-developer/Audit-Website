@@ -1,13 +1,21 @@
 import { Request, Response } from "express";
+import type { Express } from "express";
 import { MeetTheTeam } from "./meetTheTeam.model";
 import { updateMeetTheTeamSchema } from "./meetTheTeam.validation";
 import { IMedia, ILocalizedString } from "./meetTheTeam.interface";
 import { uploadMany, deleteFromCloudinary } from "../../middlewares/upload";
+import type { ResourceType, UploadedMedia } from "../../middlewares/upload";
 
 type Lang = "en" | "ar";
 const LANGS: Lang[] = ["en", "ar"];
 
 const FOLDER = "audit-website/meet-the-team/image";
+
+// Cloudinary URLs distinguish image and video using their delivery paths.
+const resourceTypeFromUrl = (url: string): ResourceType =>
+  /\/video\/upload\//.test(url) ? "video" : "image";
+
+type OldMedia = { publicId: string; resourceType: ResourceType };
 const IMAGE_FIELDS: Record<Lang, string> = { en: "imageEn", ar: "imageAr" };
 
 // ---- Default content, inserted only when the collection is empty ----
@@ -77,7 +85,9 @@ export const updateMeetTheTeam = async (req: Request, res: Response) => {
   try {
     const parsed = updateMeetTheTeamSchema.safeParse(normalizeBody(req.body));
     if (!parsed.success) {
-      res.status(400).json({ status: "error", message: zodMessage(parsed.error) });
+      res
+        .status(400)
+        .json({ status: "error", message: zodMessage(parsed.error) });
       return;
     }
 
@@ -88,29 +98,90 @@ export const updateMeetTheTeam = async (req: Request, res: Response) => {
       return;
     }
 
-    section.set(parsed.data);
+    const files = req.files as
+      | Partial<Record<string, Express.Multer.File[]>>
+      | undefined;
 
-    const files = req.files as Record<string, any[]> | undefined;
-    const toDelete: string[] = [];
+    const toDelete: OldMedia[] = [];
+    const newlyUploaded: OldMedia[] = [];
 
-    for (const lang of LANGS) {
-      const incoming = files?.[IMAGE_FIELDS[lang]];
-      if (!incoming?.length) continue;
+    try {
+      // Upload first, then save the new content. Do not remove old files
+      // until the MongoDB update has succeeded.
+      for (const lang of LANGS) {
+        const incoming = files?.[IMAGE_FIELDS[lang]];
+        if (!incoming?.length) continue;
 
-      const current: IMedia[] = section.get(`image.${lang}`) ?? [];
-      toDelete.push(...current.map((x) => x.publicId));
+        const current: IMedia[] = section.get(`image.${lang}`) ?? [];
+        toDelete.push(
+          ...current
+            .filter((item) => item.publicId)
+            .map((item) => ({
+              publicId: item.publicId,
+              resourceType: resourceTypeFromUrl(item.url),
+            })),
+        );
 
-      const added = await uploadMany(incoming, FOLDER, "image");
-      section.set(`image.${lang}`, toMedia(added));
+        // Existing route limits each language to one file.
+        // Detect image/video separately for each language.
+        const resourceType: ResourceType = incoming[0].mimetype.startsWith(
+          "video/",
+        )
+          ? "video"
+          : "image";
+
+        // DEBUG: remove once the issue is found
+        console.log(
+          lang,
+          incoming[0].originalname,
+          incoming[0].mimetype,
+          incoming[0].size,
+        );
+
+        let added: UploadedMedia[];
+        try {
+          added = await uploadMany(incoming, FOLDER, resourceType);
+        } catch (uploadError: any) {
+          // Cloudinary rejected the file (bad input), so report it as 400
+          const wrapped: any = new Error(
+            `${IMAGE_FIELDS[lang]}: ${uploadError?.message ?? "Upload failed"}`,
+          );
+          wrapped.statusCode = uploadError?.http_code === 400 ? 400 : 500;
+          throw wrapped;
+        }
+
+        newlyUploaded.push(
+          ...added.map((item) => ({
+            publicId: item.publicId,
+            resourceType,
+          })),
+        );
+        section.set(`image.${lang}`, toMedia(added));
+      }
+
+      section.set(parsed.data);
+      await section.save();
+    } catch (error) {
+      // Roll back newly uploaded Cloudinary files on failure, leaving
+      // the previously saved MongoDB content and media untouched.
+      await Promise.allSettled(
+        newlyUploaded.map((item) =>
+          deleteFromCloudinary(item.publicId, item.resourceType),
+        ),
+      );
+      throw error;
     }
 
-    await section.save();
     await Promise.allSettled(
-      toDelete.map((publicId) => deleteFromCloudinary(publicId, "image")),
+      toDelete.map((item) =>
+        deleteFromCloudinary(item.publicId, item.resourceType),
+      ),
     );
 
     res.status(200).json({ status: "success", data: section });
   } catch (error: any) {
-    res.status(500).json({ status: "error", message: error.message });
+    res
+      .status(error?.statusCode ?? 500)
+      .json({ status: "error", message: error.message });
   }
 };

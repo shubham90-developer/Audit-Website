@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import {
+  useGetServicesQuery,
+  type Service,
+} from "@/app/store/api/servicesApi";
+import { useLang } from "@/app/services/hooks/useLang";
+import { getLabels } from "@/app/services/labels";
+import { pickMedia, stripHtml } from "@/app/services/utils/service";
+
+import {
   HiOutlineBriefcase,
   HiOutlineBuildingOffice2,
   HiOutlineChatBubbleBottomCenterText,
@@ -14,25 +22,27 @@ import {
   HiOutlineChevronDown,
 } from "react-icons/hi2";
 
-const BG_IMAGE = "/img/banner/bg2.avif";
-const VIDEO = "/img/banner/3.mp4";
-
-const SERVICES = [
-  "Audit & Assurance",
-  "Tax Services",
-  "Advisory Services",
-  "Consulting Services",
-  "Accounting & Other Services",
-];
+const FALLBACK_BG_IMAGE = "/img/banner/bg2.avif";
 
 const field =
-  "w-full rounded-xl border border-white/15 bg-white/5 py-3 pl-10 pr-3 text-sm text-white placeholder:text-white/50 outline-none transition focus:border-[#3ddc6e] focus:bg-white/10 focus:ring-4 focus:ring-[#3ddc6e]/15";
+  "w-full rounded-xl border border-white/15 bg-white/5 py-3 ps-10 pe-3 text-sm text-white placeholder:text-white/50 outline-none transition focus:border-[#3ddc6e] focus:bg-white/10 focus:ring-4 focus:ring-[#3ddc6e]/15";
 const icon =
-  "pointer-events-none absolute left-3.5 top-3.5 h-[18px] w-[18px] text-[#3ddc6e]";
+  "pointer-events-none absolute start-3.5 top-3.5 h-[18px] w-[18px] text-[#3ddc6e]";
 
-const TopBanner = () => {
+const TopBanner = ({ service }: { service: Service }) => {
   const router = useRouter();
+  const lang = useLang();
+  const t = getLabels(lang);
   const [sent, setSent] = useState(false);
+
+  const { data: allServices = [] } = useGetServicesQuery();
+
+  const title = stripHtml(service.title[lang]);
+  const description = stripHtml(service.desc[lang]);
+  const bgImage = pickMedia(service.bgImage, lang) || FALLBACK_BG_IMAGE;
+  const bgVideo = pickMedia(service.bgVideo, lang);
+  // Stored in English so the admin always reads the same value.
+  const currentService = stripHtml(service.title.en);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +58,7 @@ const TopBanner = () => {
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-30 bg-cover bg-center"
-        style={{ backgroundImage: `url('${BG_IMAGE}')` }}
+        style={{ backgroundImage: `url('${bgImage}')` }}
       />
       {/* Dark overlay */}
       <div aria-hidden="true" className="absolute inset-0 -z-20 bg-black/70" />
@@ -60,17 +70,20 @@ const TopBanner = () => {
       />
 
       {/* Right video (desktop) */}
-      <div className="absolute inset-y-0 right-0 -z-10 hidden w-[52%] lg:block">
-        <video
-          src={VIDEO}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="h-full w-full object-cover"
-          style={{ clipPath: "ellipse(100% 78% at 100% 50%)" }}
-        />
+      <div className="absolute inset-y-0 right-0 -z-10 hidden w-[52%] lg:block rtl:right-auto rtl:left-0 rtl:-scale-x-100">
+        {bgVideo && (
+          <video
+            key={bgVideo}
+            src={bgVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="h-full w-full object-cover"
+            style={{ clipPath: "ellipse(100% 78% at 100% 50%)" }}
+          />
+        )}
         {/* darken so the form stays readable on top of the video */}
         <div className="absolute inset-0 bg-linear-to-l from-black/30 via-black/45 to-black/60" />
 
@@ -95,24 +108,22 @@ const TopBanner = () => {
         <div className="relative max-w-xl lg:max-w-none">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#3ddc6e]/30 bg-[#3ddc6e]/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7bea9c]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#3ddc6e]" />
-            Accounting Services in UAE
+            {t.bannerBadge}
           </span>
 
           <h1 className="mt-5 text-3xl font-bold leading-[1.12] tracking-tight sm:text-4xl lg:text-[46px] xl:text-[52px]">
-            Expert Accounting Solutions for Diverse Business Needs in the{" "}
-            <span className="text-[#3ddc6e]">UAE</span>
+            {title}
           </h1>
 
           <div className="mt-5 h-1 w-14 rounded-full bg-[#3ddc6e]" />
 
-          <p className="mt-5 max-w-md text-sm leading-7 text-white/75 sm:text-base">
-            We would love to respond to your queries and help you succeed. Feel
-            free to get in touch with our professional team.
+          <p className="mt-5 line-clamp-4 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
+            {description}
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
             <ThemeBtn onClick={() => router.push("/contact")}>
-              Book Free 20-Min Call
+              {t.bookCall}
             </ThemeBtn>
           </div>
         </div>
@@ -129,11 +140,10 @@ const TopBanner = () => {
             />
           </div>
           <h2 className="mt-4 text-center text-2xl font-bold tracking-tight sm:text-[28px]">
-            Talk to Our <span className="text-[#3ddc6e]">Experts</span>
+            {t.talkTo} <span className="text-[#3ddc6e]">{t.experts}</span>
           </h2>
           <p className="mx-auto mt-2 max-w-sm text-center text-xs leading-5 text-white/70">
-            Tell us what you need and our team will get back to you with the
-            right solution.
+            {t.formIntro}
           </p>
 
           {sent ? (
@@ -141,32 +151,32 @@ const TopBanner = () => {
               role="status"
               className="mt-8 rounded-2xl border border-[#3ddc6e]/40 bg-[#3ddc6e]/10 p-6 text-center"
             >
-              <p className="text-lg font-bold text-[#3ddc6e]">Thank you!</p>
+              <p className="text-lg font-bold text-[#3ddc6e]">{t.thanks}</p>
               <p className="mt-1 text-sm text-white/80">
-                We&apos;ve received your request and will contact you shortly.
+                {t.thanksText}
               </p>
             </div>
           ) : (
             <form onSubmit={onSubmit} className="mt-6 space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="relative block">
-                  <span className="sr-only">Your name</span>
+                  <span className="sr-only">{t.yourName}</span>
                   <HiOutlineUser className={icon} aria-hidden />
                   <input
                     name="name"
                     required
                     autoComplete="name"
-                    placeholder="Your Name"
+                    placeholder={t.yourName}
                     className={field}
                   />
                 </label>
                 <label className="relative block">
-                  <span className="sr-only">Business name</span>
+                  <span className="sr-only">{t.businessName}</span>
                   <HiOutlineBriefcase className={icon} aria-hidden />
                   <input
                     name="business"
                     autoComplete="organization"
-                    placeholder="Business Name"
+                    placeholder={t.businessName}
                     className={field}
                   />
                 </label>
@@ -174,14 +184,14 @@ const TopBanner = () => {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="relative block">
-                  <span className="sr-only">Email address</span>
+                  <span className="sr-only">{t.email}</span>
                   <HiOutlineEnvelope className={icon} aria-hidden />
                   <input
                     name="email"
                     type="email"
                     required
                     autoComplete="email"
-                    placeholder="Email Address"
+                    placeholder={t.email}
                     className={field}
                   />
                 </label>
@@ -190,57 +200,62 @@ const TopBanner = () => {
                     +971
                   </span>
                   <label className="block min-w-0 flex-1">
-                    <span className="sr-only">Mobile number</span>
+                    <span className="sr-only">{t.mobile}</span>
                     <input
                       name="phone"
                       type="tel"
                       required
                       autoComplete="tel-national"
-                      placeholder="Mobile"
-                      className={`${field} pl-3`}
+                      placeholder={t.mobile}
+                      className={`${field} ps-3`}
                     />
                   </label>
                 </div>
               </div>
 
               <label className="relative block">
-                <span className="sr-only">Service</span>
+                <span className="sr-only">{title}</span>
                 <HiOutlineBuildingOffice2 className={icon} aria-hidden />
                 <select
+                  key={currentService}
                   name="service"
-                  defaultValue={SERVICES[0]}
-                  className={`${field} cursor-pointer appearance-none pr-10`}
+                  defaultValue={currentService}
+                  className={`${field} cursor-pointer appearance-none pe-10`}
                 >
-                  {SERVICES.map((s) => (
-                    <option key={s} value={s} className="bg-gray-900">
-                      {s}
+                  {allServices.map((item) => (
+                    <option
+                      key={item._id}
+                      value={stripHtml(item.title.en)}
+                      className="bg-gray-900"
+                    >
+                      {stripHtml(item.title[lang])}
                     </option>
                   ))}
                 </select>
                 <HiOutlineChevronDown
                   aria-hidden
-                  className="pointer-events-none absolute right-3.5 top-3.5 h-4.5 w-4.5 text-[#3ddc6e]"
+                  className="pointer-events-none absolute end-3.5 top-3.5 h-4.5 w-4.5 text-[#3ddc6e]"
                 />
               </label>
 
               <label className="block">
-                <span className="sr-only">Message</span>
+                <span className="sr-only">{t.message}</span>
                 <textarea
                   name="message"
                   rows={3}
-                  placeholder="How can we help you?"
-                  className={`${field} resize-none pl-3.5`}
+                  placeholder={t.message}
+                  className={`${field} resize-none ps-3.5`}
                 />
               </label>
 
-              <ThemeBtn className="w-full">Send Message</ThemeBtn>
+              <ThemeBtn className="w-full">{t.send}</ThemeBtn>
 
               <p className="flex items-center justify-center gap-1.5 pt-1 text-xs text-white/60">
                 <HiOutlineShieldCheck
                   aria-hidden
                   className="h-4 w-4 text-[#3ddc6e]"
                 />
-                No obligation. Your information is secure and confidential.
+                {t.secure}
               </p>
             </form>
           )}

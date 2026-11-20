@@ -42,7 +42,7 @@ export const faqSectionApi = createApi({
         body.append('data', JSON.stringify(data))
         if (files?.en) body.append('backgroundImageEn', files.en)
         if (files?.ar) body.append('backgroundImageAr', files.ar)
-        return { url: '/faq-section', method: 'PUT', body }
+        return { url: '/faq', method: 'PUT', body }
       },
       transformResponse: (r: { data: FaqSection }) => r.data,
       invalidatesTags: ['FaqSection'],

@@ -1,69 +1,20 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  FiArrowRight,
-  FiArrowUpRight,
-  FiBarChart2,
-  FiBookOpen,
-  FiBriefcase,
-  FiFileText,
-  FiShield,
-} from "react-icons/fi";
+import { FiArrowRight, FiArrowUpRight } from "react-icons/fi";
 
-interface Service {
-  id: string;
-  slug: string;
-  name: string;
-  text: string;
-  icon: React.ElementType;
-  image: string;
-}
-
-const services: Service[] = [
-  {
-    id: "1",
-    slug: "audit-assurance",
-    icon: FiBarChart2,
-    name: "Audit & Assurance",
-    text: "Independent audits that ensure financial accuracy, transparency, and regulatory compliance.",
-    image: "/img/banner/1.jpg",
-  },
-  {
-    id: "2",
-    slug: "tax-services",
-    icon: FiFileText,
-    name: "Tax Services",
-    text: "Corporate tax, VAT, and transfer pricing solutions to simplify compliance and improve tax efficiency.",
-    image: "/img/banner/2.jpg",
-  },
-  {
-    id: "3",
-    slug: "advisory-services",
-    icon: FiShield,
-    name: "Advisory Services",
-    text: "Build stronger controls, improve governance, and manage business risks with confidence.",
-    image: "/img/banner/3.jpg",
-  },
-  {
-    id: "4",
-    slug: "consulting-services",
-    icon: FiBriefcase,
-    name: "Consulting Services",
-    text: "Strategic support for valuations, mergers, acquisitions, financial modelling, and IT audits.",
-    image: "/img/banner/2.jpg",
-  },
-  {
-    id: "5",
-    slug: "accounting-other-services",
-    icon: FiBookOpen,
-    name: "Accounting & Other Services",
-    text: "Reliable bookkeeping, outsourced CFO services, litigation support, and specialised audits.",
-    image: "/img/banner/3.jpg",
-  },
-];
+import { useGetServicesQuery } from "@/app/store/api/servicesApi";
+import { useLang } from "@/app/services/hooks/useLang";
+import { getLabels } from "@/app/services/labels";
+import { pickMedia, slugify, stripHtml } from "@/app/services/utils/service";
 
 const Services: React.FC = () => {
+  const lang = useLang();
+  const t = getLabels(lang);
+  const { data: services = [], isLoading, isError } = useGetServicesQuery();
+
   return (
     <section className="relative isolate  bg-white py-14 sm:py-20 lg:py-24">
       {/* Background image */}
@@ -101,23 +52,46 @@ const Services: React.FC = () => {
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+          {isLoading &&
+            Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                aria-hidden="true"
+                className="min-h-80 animate-pulse rounded-3xl bg-gray-900/90"
+              />
+            ))}
+
+          {isError && (
+            <p
+              role="alert"
+              className="col-span-full rounded-3xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700"
+            >
+              {t.loadError}
+            </p>
+          )}
+
           {services.map((service, index) => {
-            const Icon = service.icon;
+            const name = stripHtml(service.title[lang]);
+            const text = stripHtml(service.desc[lang]);
+            const image = pickMedia(service.cardImg, lang);
+            const icon = pickMedia(service.iconImg, lang);
 
             return (
               <Link
-                key={service.id}
-                href={`/services/${service.name}/${service.id}`}
+                key={service._id}
+                href={`/services/${slugify(service.title.en)}/${service._id}`}
                 className="group relative isolate flex min-h-80 flex-col overflow-hidden rounded-3xl border border-white/10 bg-gray-950 p-6 text-white shadow-[0_10px_40px_-18px_rgba(0,0,0,0.6)] transition duration-300 hover:-translate-y-1.5 hover:border-[#3ddc6e]/60 hover:shadow-[0_28px_60px_-20px_rgba(61,220,110,0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3ddc6e] sm:p-7"
               >
                 {/* image */}
-                <Image
-                  src={service.image}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  className="-z-20 object-cover opacity-70 transition duration-700 group-hover:scale-110"
-                />
+                {image && (
+                  <Image
+                    src={image}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="-z-20 object-cover opacity-70 transition duration-700 group-hover:scale-110"
+                  />
+                )}
                 {/* dark gradient: image shows at top, solid at bottom for text */}
                 <div
                   aria-hidden="true"
@@ -131,8 +105,16 @@ const Services: React.FC = () => {
 
                 {/* top row */}
                 <div className="flex items-start justify-between">
-                  <span className="grid h-12 w-12 place-items-center rounded-full border border-[#3ddc6e]/50 bg-black/40 text-[#3ddc6e] backdrop-blur transition duration-300 group-hover:bg-[#3ddc6e] group-hover:text-black">
-                    <Icon size={20} aria-hidden />
+                  <span className="grid h-12 w-12 place-items-center rounded-full border border-[#3ddc6e]/50 bg-black/40 backdrop-blur transition duration-300 group-hover:bg-[#3ddc6e]">
+                    {icon && (
+                      <Image
+                        src={icon}
+                        alt=""
+                        width={24}
+                        height={24}
+                        className="h-6 w-6 object-contain"
+                      />
+                    )}
                   </span>
                   <span className="text-2xl font-bold tracking-wide text-[#3ddc6e]">
                     {String(index + 1).padStart(2, "0")}
@@ -142,20 +124,24 @@ const Services: React.FC = () => {
                 {/* bottom content */}
                 <div className="mt-auto pt-16">
                   <h3 className="text-xl font-bold tracking-tight sm:text-2xl">
-                    {service.name}
+                    {name}
                   </h3>
                   <span
                     aria-hidden="true"
                     className="mt-3 block h-0.5 w-8 rounded-full bg-[#3ddc6e] transition-all duration-300 group-hover:w-16"
                   />
-                  <p className="mt-4 text-sm leading-7 text-gray-300">
-                    {service.text}
+                  <p className="mt-4 line-clamp-3 text-sm leading-7 text-gray-300">
+                    {text}
                   </p>
 
                   <div className="mt-5 flex items-center gap-3 text-sm font-semibold text-[#3ddc6e]">
-                    Explore service
-                    <span className="grid h-7 w-7 place-items-center rounded-full border border-[#3ddc6e]/50 transition duration-300 group-hover:translate-x-1 group-hover:bg-[#3ddc6e] group-hover:text-black">
-                      <FiArrowRight size={14} aria-hidden />
+                    {t.exploreService}
+                    <span className="grid h-7 w-7 place-items-center rounded-full border border-[#3ddc6e]/50 transition duration-300 group-hover:translate-x-1 group-hover:bg-[#3ddc6e] group-hover:text-black rtl:group-hover:-translate-x-1">
+                      <FiArrowRight
+                        size={14}
+                        aria-hidden
+                        className="rtl:rotate-180"
+                      />
                     </span>
                   </div>
                 </div>
@@ -180,18 +166,17 @@ const Services: React.FC = () => {
 
             <div className="relative">
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#3ddc6e]">
-                Let&apos;s Talk
+                {t.letsTalk}
               </span>
               <h3 className="mt-4 text-2xl font-bold leading-snug sm:text-3xl">
-                Need the right solution for your business?
+                {t.ctaTitle}
               </h3>
               <span
                 aria-hidden="true"
                 className="mt-4 block h-0.5 w-8 rounded-full bg-[#3ddc6e]"
               />
               <p className="mt-4 text-sm leading-7 text-gray-300">
-                Speak with our experts and discover how we can help your
-                business move forward.
+                {t.ctaText}
               </p>
             </div>
 
@@ -199,9 +184,9 @@ const Services: React.FC = () => {
               href="/contact"
               className="relative mt-8 inline-flex w-fit items-center gap-3 rounded-full bg-[#3ddc6e] py-2 pl-5 pr-2 text-sm font-bold text-black transition duration-300 hover:bg-white"
             >
-              Book a Consultation
+              {t.bookConsultation}
               <span className="grid h-8 w-8 place-items-center rounded-full bg-black text-[#3ddc6e]">
-                <FiArrowUpRight size={16} aria-hidden />
+                <FiArrowUpRight size={16} aria-hidden className="rtl:-scale-x-100" />
               </span>
             </Link>
           </div>

@@ -15,6 +15,8 @@ const LANGS = [
 type Lang = 'en' | 'ar'
 const IMAGE_FIELD = { en: 'imageEn', ar: 'imageAr' } as const
 const MIN_LENGTH = 2
+const ACCEPTED_MEDIA = 'image/*,video/mp4,video/webm,video/quicktime,.mov'
+const VIDEO_TYPES = new Set(['video/mp4', 'video/webm', 'video/quicktime'])
 
 const TEXT_FIELDS: { key: keyof MeetTheTeamText; label: string; hint?: string }[] = [
   { key: 'leftTitle', label: 'Left title', hint: 'Shown on the left, e.g. "The team you\'ll actually work with"' },
@@ -23,6 +25,11 @@ const TEXT_FIELDS: { key: keyof MeetTheTeamText; label: string; hint?: string }[
 ]
 
 const trimLocalized = (v: Localized): Localized => ({ en: v.en.trim(), ar: v.ar.trim() })
+
+const isValidMedia = (file: File) =>
+  file.type.startsWith('image/') || VIDEO_TYPES.has(file.type) || (file.type === '' && /\.(mp4|webm|mov)$/i.test(file.name))
+
+const isVideoUrl = (url: string) => /\/video\/upload\//i.test(url) || /\.(mp4|webm|mov)(?:[?#]|$)/i.test(url)
 
 /* ---------- Editor ---------- */
 
@@ -39,15 +46,16 @@ const Editor = ({ section }: { section: MeetTheTeam }) => {
   const setValue = (key: keyof MeetTheTeamText, code: Lang, value: string) =>
     setDraft((prev) => ({ ...prev, [key]: { ...prev[key], [code]: value } }))
 
-  const handleImage = (code: Lang, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMedia = (code: Lang, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file')
+    if (!isValidMedia(file)) {
+      toast.error('Please select an image or video (MP4, WebM, MOV)')
       e.target.value = ''
       return
     }
+
     setFiles((prev) => ({ ...prev, [IMAGE_FIELD[code]]: file }))
   }
 
@@ -73,8 +81,9 @@ const Editor = ({ section }: { section: MeetTheTeam }) => {
       toast.success('Section saved')
       setFiles({})
       setFileKey((k) => k + 1)
-    } catch (error: any) {
-      toast.error(error?.data?.message || 'Something went wrong')
+    } catch (error: unknown) {
+      const apiError = error as { data?: { message?: string } } | undefined
+      toast.error(apiError?.data?.message || 'Something went wrong')
     }
   }
 
@@ -105,28 +114,47 @@ const Editor = ({ section }: { section: MeetTheTeam }) => {
           </div>
         ))}
 
-        <h6 className="fw-bold mt-4 mb-3">Card image (middle)</h6>
+        <h6 className="fw-bold mt-4 mb-3">Card media (middle)</h6>
         <div className="row g-3 mb-4">
           {LANGS.map(({ code, name }) => {
-            const existing = section.image[code]
+            const existing = section.image?.[code] ?? []
+            const currentMedia = existing[0]
+            const selectedFile = files[IMAGE_FIELD[code]]
 
             return (
               <div className="col-6" key={code}>
                 <div className="small text-muted mb-1">{name}</div>
-                {existing.length > 0 ? (
-                  <img src={existing[0].url} alt="" className="mb-2 rounded" style={{ width: 160, height: 90, objectFit: 'cover' }} />
+                {currentMedia?.url ? (
+                  isVideoUrl(currentMedia.url) ? (
+                    <video
+                      src={currentMedia.url}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="mb-2 rounded"
+                      style={{ width: 160, height: 90, objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <img
+                      src={currentMedia.url}
+                      alt={`${name} media`}
+                      className="mb-2 rounded"
+                      style={{ width: 160, height: 90, objectFit: 'cover' }}
+                    />
+                  )
                 ) : (
-                  <div className="small text-muted mb-2">No image yet</div>
+                  <div className="small text-muted mb-2">No media yet</div>
                 )}
                 <input
                   key={`${fileKey}-${code}`}
                   type="file"
-                  accept="image/*"
+                  accept={ACCEPTED_MEDIA}
                   className="form-control form-control-sm"
-                  onChange={(e) => handleImage(code, e)}
+                  onChange={(e) => handleMedia(code, e)}
                   disabled={isLoading}
                 />
-                <small className="text-muted">A new image replaces the current one.</small>
+                {selectedFile && <div className="small text-success mt-2">Selected: {selectedFile.name}</div>}
+                <small className="text-muted d-block mt-1">Images or videos (MP4, WebM, MOV). A new file replaces the current one.</small>
               </div>
             )
           })}
@@ -161,8 +189,6 @@ const MeetTheTeamAdminPage = () => {
   return (
     <div className="p-3">
       <h5 className="fw-bold mb-3">Meet the Team</h5>
-
-      {/* key remounts the editor after a save, so it shows the new values */}
       <Editor key={data.updatedAt} section={data} />
     </div>
   )

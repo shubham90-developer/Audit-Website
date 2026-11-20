@@ -1,0 +1,71 @@
+import type { Lang } from "@/app/services/hooks/useLang";
+
+/** Static UI text for the services pages (dynamic content comes from the API). */
+const labels = {
+  en: {
+    exploreService: "Explore service",
+    letsTalk: "Let's Talk",
+    ctaTitle: "Need the right solution for your business?",
+    ctaText:
+      "Speak with our experts and discover how we can help your business move forward.",
+    bookConsultation: "Book a Consultation",
+    loadError: "We couldn't load our services right now. Please try again.",
+    notFound: "This service could not be found.",
+    backToServices: "Back to services",
+    bannerBadge: "Services in UAE",
+    bookCall: "Book Free 20-Min Call",
+    talkTo: "Talk to Our",
+    experts: "Experts",
+    formIntro:
+      "Tell us what you need and our team will get back to you with the right solution.",
+    thanks: "Thank you!",
+    thanksText: "We've received your request and will contact you shortly.",
+    yourName: "Your Name",
+    businessName: "Business Name",
+    email: "Email Address",
+    mobile: "Mobile",
+    message: "How can we help you?",
+    send: "Send Message",
+    secure: "No obligation. Your information is secure and confidential.",
+    years: "25+ Yrs",
+    yearsText: "Audit experience in the UAE",
+    statText:
+      "Even companies with clean books should be audited properly. A well-run audit protects the owners, supports your bank and licensing needs, and keeps you in good standing.",
+    whatWeOffer: "What We Offer",
+    offerSub: "Services designed around your needs",
+    brand: "Ahmed Al Mazroei",
+  },
+  ar: {
+    exploreService: "اكتشف الخدمة",
+    letsTalk: "لنتحدث",
+    ctaTitle: "هل تحتاج إلى الحل المناسب لعملك؟",
+    ctaText: "تحدث مع خبرائنا واكتشف كيف يمكننا مساعدة عملك على المضي قدماً.",
+    bookConsultation: "احجز استشارة",
+    loadError: "تعذّر تحميل خدماتنا حالياً. يرجى المحاولة مرة أخرى.",
+    notFound: "تعذّر العثور على هذه الخدمة.",
+    backToServices: "العودة إلى الخدمات",
+    bannerBadge: "خدمات في الإمارات",
+    bookCall: "احجز مكالمة مجانية لمدة 20 دقيقة",
+    talkTo: "تحدث إلى",
+    experts: "خبرائنا",
+    formIntro: "أخبرنا بما تحتاجه وسيعود إليك فريقنا بالحل المناسب.",
+    thanks: "شكراً لك!",
+    thanksText: "لقد استلمنا طلبك وسنتواصل معك قريباً.",
+    yourName: "اسمك",
+    businessName: "اسم الشركة",
+    email: "البريد الإلكتروني",
+    mobile: "رقم الجوال",
+    message: "كيف يمكننا مساعدتك؟",
+    send: "إرسال الرسالة",
+    secure: "دون أي التزام. معلوماتك آمنة وسرية.",
+    years: "+25 سنة",
+    yearsText: "خبرة في التدقيق في الإمارات",
+    statText:
+      "حتى الشركات ذات الدفاتر السليمة تحتاج إلى تدقيق سليم. فالتدقيق الجيد يحمي المالكين، ويدعم احتياجات البنك والترخيص، ويحافظ على سلامة وضعك.",
+    whatWeOffer: "ما نقدمه",
+    offerSub: "خدمات مصممة وفق احتياجاتك",
+    brand: "أحمد المزروعي",
+  },
+} as const;
+
+export const getLabels = (lang: Lang) => labels[lang];

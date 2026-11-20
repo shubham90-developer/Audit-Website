@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { BlogSection } from "./blog.model";
 import { sectionInput } from "./blog.validation";
+import { uploadBuffer } from "../../middlewares/upload";
 
 const seed = {
   key: "insights",
@@ -58,12 +59,13 @@ export const updateBlogSection = async (
 ) => {
   try {
     const result = sectionInput.safeParse(req.body);
-    if (!result.success)
+    if (!result.success) {
       return res.status(400).json({
         success: false,
         message: "Invalid blog data",
         errors: result.error.flatten(),
       });
+    }
     const data = await BlogSection.findOneAndUpdate(
       { key: "insights" },
       { $set: result.data },
@@ -86,11 +88,30 @@ export const getPublishedArticle = async (
       (item: any) =>
         item.slug === req.params.slug && item.status === "published",
     );
-    if (!article)
+    if (!article) {
       return res
         .status(404)
         .json({ success: false, message: "Article not found" });
+    }
     res.json({ success: true, data: article });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const uploadBlogImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Image required" });
+    }
+    const data = await uploadBuffer(req.file.buffer, "audit-blog", "image");
+    res.json({ success: true, data }); // { url, publicId }
   } catch (error) {
     next(error);
   }

@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPublishedArticle = exports.updateBlogSection = exports.getBlogSection = void 0;
+exports.uploadBlogImage = exports.getPublishedArticle = exports.updateBlogSection = exports.getBlogSection = void 0;
 const blog_model_1 = require("./blog.model");
 const blog_validation_1 = require("./blog.validation");
+const upload_1 = require("../../middlewares/upload");
 const seed = {
     key: "insights",
     heroTitle: { en: "Insights & Resources", ar: "المقالات والموارد" },
@@ -76,3 +77,17 @@ const getPublishedArticle = async (req, res, next) => {
     }
 };
 exports.getPublishedArticle = getPublishedArticle;
+const uploadBlogImage = async (req, res, next) => {
+    try {
+        if (!req.file)
+            return res
+                .status(400)
+                .json({ success: false, message: "Image required" });
+        const data = await (0, upload_1.uploadBuffer)(req.file.buffer, "audit-blog", "image");
+        res.json({ success: true, data }); // data = { url, publicId }
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.uploadBlogImage = uploadBlogImage;

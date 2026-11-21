@@ -112,6 +112,26 @@ export default function SiteSettingsPage() {
         </div>
         <div className="card mb-4">
           <div className="card-body">
+            <h5 className="mb-3">Map</h5>
+            <label className="form-label fw-semibold" htmlFor="mapEmbedUrl">
+              mapEmbedUrl
+            </label>
+            <textarea
+              id="mapEmbedUrl"
+              className="form-control"
+              rows={3}
+              placeholder="Paste the Google Maps embed URL (or the whole iframe code)"
+              value={draft.mapEmbedUrl ?? ''}
+              disabled={saving}
+              onChange={(e) => setDraft((p) => (p ? { ...p, mapEmbedUrl: e.target.value } : p))}
+            />
+            <div className="form-text">
+              In Google Maps open your office, choose Share &gt; Embed a map and paste the code here. Leave empty to use the address.
+            </div>
+          </div>
+        </div>
+        <div className="card mb-4">
+          <div className="card-body">
             <h5 className="mb-3">Social Media</h5>
             <div className="row g-3">
               {socialFields.map((key) => (

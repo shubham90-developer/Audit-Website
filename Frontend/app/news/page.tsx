@@ -1,23 +1,20 @@
 import { Metadata } from "next";
 import Blog from "./components/Blog";
-import Breadcrumb from "../components/Breadcrumb";
+import NewsHeader from "./components/NewsHeader";
 
 export const metadata: Metadata = {
   title: "Insights",
-  description: "Welcome to my website",
+  description:
+    "Expert insights, practical guidance and the latest updates on accounting, tax and business in the UAE.",
 };
 
-const BlogPage = () => {
+const NewsPage = () => {
   return (
     <>
-      <Breadcrumb
-        title="Insights & Resources"
-        subtitle="Stay informed with expert insights, practical guidance, and the latest updates on accounting, tax, and business in the UAE."
-        image="/img/banner/bg4.avif"
-      />
+      <NewsHeader />
       <Blog />
     </>
   );
 };
 
-export default BlogPage;
+export default NewsPage;

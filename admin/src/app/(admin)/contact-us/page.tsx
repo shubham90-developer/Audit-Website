@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
+import RichTextEditor from '@/components/RichTextEditor'
 import { useGetContactContentQuery, useUpdateContactContentMutation } from '@/store/contactContentApi'
 import type { ContactContent, ContactContentText, ContactContentFiles, TextKey, ContactCard, ContactFeature } from '@/store/contactContentApi'
 import type { Localized } from '@/store/bannerApi'
@@ -71,8 +72,8 @@ export default function ContactContentAdminPage() {
   if (!draft) return null
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="mb-0">Contact Us - Dynamic Content</h4>
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <h4 className="mb-0">Contact Us </h4>
         <button className="btn btn-primary" disabled={saving} onClick={save}>
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
@@ -85,15 +86,14 @@ export default function ContactContentAdminPage() {
               <label className="form-label fw-semibold">{field.label}</label>
               <div className="row g-3">
                 {LANGS.map((lang) => (
-                  <div className="col-md-6" key={lang.code}>
+                  <div className="col-12 col-lg-6" key={lang.code}>
                     <label className="form-label small">{lang.label}</label>
-                    <textarea
-                      className="form-control"
-                      rows={field.key.toLowerCase().includes('description') ? 3 : 2}
-                      dir={lang.dir}
+                    <RichTextEditor
                       value={draft[field.key][lang.code]}
                       disabled={saving}
-                      onChange={(e) => setText(field.key, lang.code, e.target.value)}
+                      dir={lang.dir}
+                      lang={lang.code}
+                      onChange={(value) => setText(field.key, lang.code, value)}
                     />
                   </div>
                 ))}
@@ -113,7 +113,7 @@ export default function ContactContentAdminPage() {
                   const fileKey = `${field.key}${lang.code === 'en' ? 'En' : 'Ar'}` as keyof ContactContentFiles
                   const current = draft[field.key][lang.code][0]?.url
                   return (
-                    <div className="col-md-6" key={lang.code}>
+                    <div className="col-12 col-lg-6" key={lang.code}>
                       <label className="form-label">{lang.label}</label>
                       {current &&
                         (field.kind === 'image' ? (
@@ -121,10 +121,10 @@ export default function ContactContentAdminPage() {
                             src={current}
                             alt={field.label}
                             className="d-block rounded mb-2"
-                            style={{ maxWidth: 220, maxHeight: 120, objectFit: 'cover' }}
+                            style={{ width: '100%', maxWidth: 220, maxHeight: 120, objectFit: 'cover' }}
                           />
                         ) : (
-                          <video src={current} controls className="d-block mb-2" style={{ maxWidth: 220, maxHeight: 120 }} />
+                          <video src={current} controls className="d-block mb-2" style={{ width: '100%', maxWidth: 220, maxHeight: 120 }} />
                         ))}
                       <input
                         className="form-control"
@@ -143,7 +143,7 @@ export default function ContactContentAdminPage() {
       </div>
       <div className="card mb-4">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
             <h5 className="mb-0">Contact Cards</h5>
             <button
               className="btn btn-soft-primary"
@@ -159,7 +159,7 @@ export default function ContactContentAdminPage() {
           {draft.contactCards.map((card, index) => (
             <div className="border rounded p-3 mb-3" key={card._id || index}>
               <div className="row g-2 align-items-end">
-                <div className="col-md-4">
+                <div className="col-12 col-md-6 col-xl-4">
                   <label className="form-label">Type</label>
                   <select className="form-select" value={card.key} onChange={(e) => setCard(index, { key: e.target.value as ContactCard['key'] })}>
                     {['phone', 'email', 'whatsapp', 'address'].map((x) => (
@@ -169,11 +169,11 @@ export default function ContactContentAdminPage() {
                     ))}
                   </select>
                 </div>
-                <div className="col-md-5">
+                <div className="col-12 col-md-6 col-xl-5">
                   <label className="form-label">Link (tel:, mailto:, https:)</label>
                   <input className="form-control" value={card.href} onChange={(e) => setCard(index, { href: e.target.value })} />
                 </div>
-                <div className="col-md-2">
+                <div className="col-6 col-md-4 col-xl-2">
                   <label className="form-label">Order</label>
                   <input
                     type="number"
@@ -182,7 +182,7 @@ export default function ContactContentAdminPage() {
                     onChange={(e) => setCard(index, { order: Number(e.target.value) })}
                   />
                 </div>
-                <div className="col-md-1">
+                <div className="col-6 col-md-4 col-xl-1">
                   <button
                     className="btn btn-soft-danger"
                     onClick={() => setDraft((prev) => (prev ? { ...prev, contactCards: prev.contactCards.filter((_, i) => i !== index) } : prev))}>
@@ -195,13 +195,14 @@ export default function ContactContentAdminPage() {
                   <label className="form-label fw-semibold">{key}</label>
                   <div className="row g-2">
                     {LANGS.map((lang) => (
-                      <div className="col-md-6" key={lang.code}>
+                      <div className="col-12 col-lg-6" key={lang.code}>
                         <label className="small">{lang.label}</label>
-                        <input
-                          className="form-control"
-                          dir={lang.dir}
+                        <RichTextEditor
                           value={card[key][lang.code]}
-                          onChange={(e) => setCard(index, { [key]: { ...card[key], [lang.code]: e.target.value } })}
+                          disabled={saving}
+                          dir={lang.dir}
+                          lang={lang.code}
+                          onChange={(value) => setCard(index, { [key]: { ...card[key], [lang.code]: value } })}
                         />
                       </div>
                     ))}
@@ -223,7 +224,7 @@ export default function ContactContentAdminPage() {
       </div>
       <div className="card mb-4">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
             <h5 className="mb-0">Feature Highlights</h5>
             <button
               className="btn btn-soft-primary"
@@ -237,7 +238,7 @@ export default function ContactContentAdminPage() {
           {draft.features.map((feature, index) => (
             <div className="border rounded p-3 mb-3" key={feature._id || index}>
               <div className="row g-2">
-                <div className="col-md-5">
+                <div className="col-12 col-md-6 col-xl-5">
                   <label className="form-label">Icon</label>
                   <select
                     className="form-select"
@@ -281,14 +282,14 @@ export default function ContactContentAdminPage() {
                   <label className="form-label fw-semibold">{key}</label>
                   <div className="row g-2">
                     {LANGS.map((lang) => (
-                      <div className="col-md-6" key={lang.code}>
+                      <div className="col-12 col-lg-6" key={lang.code}>
                         <label className="small">{lang.label}</label>
-                        <textarea
-                          className="form-control"
-                          rows={key === 'description' ? 3 : 2}
-                          dir={lang.dir}
+                        <RichTextEditor
                           value={feature[key][lang.code]}
-                          onChange={(e) => setFeature(index, { [key]: { ...feature[key], [lang.code]: e.target.value } })}
+                          disabled={saving}
+                          dir={lang.dir}
+                          lang={lang.code}
+                          onChange={(value) => setFeature(index, { [key]: { ...feature[key], [lang.code]: value } })}
                         />
                       </div>
                     ))}

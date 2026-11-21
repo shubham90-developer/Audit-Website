@@ -19,10 +19,54 @@ const nunitoSans = Nunito_Sans({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "AHMED AL MAZROEI",
-  description: "Welcome to my website",
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+
+const DEFAULT_NAME = "Ahmed Al Mazroei Auditing & Accounting";
+const DEFAULT_DESCRIPTION =
+  "Audit, tax and accounting services in Abu Dhabi, UAE.";
+
+type SiteMeta = {
+  companyName?: { en: string; ar: string };
+  footerDescription?: { en: string; ar: string };
+  favicon?: { url: string };
 };
+
+const stripHtml = (html = "") =>
+  html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** Reads the site settings on the server (name, description, favicon). Fails quietly. */
+const getSiteMeta = async (): Promise<SiteMeta | null> => {
+  try {
+    const res = await fetch(`${API_URL}/settings`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { data?: SiteMeta };
+    return json.data ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export async function generateMetadata(): Promise<Metadata> {
+  const meta = await getSiteMeta();
+  const name = stripHtml(meta?.companyName?.en) || DEFAULT_NAME;
+  const description =
+    stripHtml(meta?.footerDescription?.en) || DEFAULT_DESCRIPTION;
+  const favicon = meta?.favicon?.url;
+
+  return {
+    title: { default: name, template: `%s | ${name}` },
+    description,
+    ...(favicon
+      ? { icons: { icon: favicon, shortcut: favicon, apple: favicon } }
+      : {}),
+  };
+}
 
 export default function RootLayout({
   children,

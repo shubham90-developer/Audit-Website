@@ -19,6 +19,7 @@ export interface SiteSettings {
   email: string
   whatsapp: string
   googleMapsUrl: string
+  mapEmbedUrl: string
   socials: { instagram: string; facebook: string; youtube: string; linkedin: string; x: string }
   logo: Media
   footerLogo: Media

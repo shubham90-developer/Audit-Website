@@ -16,27 +16,130 @@ import {
   FiUsers,
 } from "react-icons/fi";
 
-/* ----------------------------- Content ----------------------------- */
+import { useGetContactContentQuery } from "@/app/store/api/contactContentApi";
+import { useSubmitEnquiryMutation } from "@/app/store/api/enquiryApi";
+import { useLang } from "@/app/services/hooks/useLang";
 
-const BG_IMAGE = "/img/banner/bg1.avif";
+/* ------------------------- Content helpers ------------------------- */
 
-const FEATURES = [
-  {
-    icon: FiHeadphones,
-    title: "Expert Consultation",
-    text: "Guidance from qualified UAE tax, audit and accounting professionals.",
+type Lang = "en" | "ar";
+type Localized = { en: string; ar: string };
+type MediaItem = { url: string };
+type LocalizedMedia = { en: MediaItem[]; ar: MediaItem[] };
+type Sortable = { isActive: boolean; order: number };
+
+/** Value in the active language, falling back to the other one when empty. */
+const pickText = (value: Localized | undefined, lang: Lang) => {
+  const other: Lang = lang === "en" ? "ar" : "en";
+  const primary = value?.[lang] ?? "";
+  return primary.trim() ? primary : (value?.[other] ?? "");
+};
+
+/** Plain text from HTML (admin text fields may be rich text). */
+const stripHtml = (html = "") =>
+  html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const pickPlain = (value: Localized | undefined, lang: Lang) =>
+  stripHtml(pickText(value, lang));
+
+/** First uploaded URL for the active language, falling back to the other one. */
+const pickMediaUrl = (media: LocalizedMedia | undefined, lang: Lang) => {
+  const other: Lang = lang === "en" ? "ar" : "en";
+  return (
+    media?.[lang]?.find((m) => m.url)?.url ||
+    media?.[other]?.find((m) => m.url)?.url ||
+    ""
+  );
+};
+
+/** Active items only, in admin order. */
+const activeSorted = <T extends Sortable>(items: T[] | undefined): T[] =>
+  (items ?? [])
+    .filter((item) => item.isActive)
+    .sort((a, b) => a.order - b.order);
+
+/* ----------------------- Loading and error UI ----------------------- */
+
+const UI = {
+  en: {
+    loadError: "We couldn't load this content right now.",
+    retry: "Try again",
+    submitError:
+      "Sorry, your message could not be sent. Please check your details and try again.",
+    sending: "Sending...",
   },
-  {
-    icon: FiClock,
-    title: "Quick Response",
-    text: "We reply within UAE business hours, not days later.",
+  ar: {
+    loadError: "تعذّر تحميل هذا المحتوى حالياً.",
+    retry: "حاول مرة أخرى",
+    submitError:
+      "عذراً، تعذّر إرسال رسالتك. يرجى مراجعة بياناتك والمحاولة مرة أخرى.",
+    sending: "جارٍ الإرسال...",
   },
-  {
-    icon: FiUsers,
-    title: "Trusted by Businesses",
-    text: "Hundreds of clients served across the UAE and beyond.",
-  },
-];
+} as const;
+
+const Skeleton = ({
+  className = "",
+  tone = "light",
+}: {
+  className?: string;
+  tone?: "light" | "dark";
+}) => (
+  <span
+    aria-hidden="true"
+    className={`block animate-pulse rounded-md ${
+      tone === "dark" ? "bg-white/10" : "bg-gray-200/80"
+    } ${className}`}
+  />
+);
+
+const ContentError = ({
+  message,
+  retryLabel,
+  onRetry,
+  tone = "light",
+}: {
+  message: string;
+  retryLabel: string;
+  onRetry: () => void;
+  tone?: "light" | "dark";
+}) => (
+  <div
+    role="alert"
+    className={`rounded-2xl border p-5 text-center text-sm ${
+      tone === "dark"
+        ? "border-white/15 text-white/80"
+        : "border-red-200 bg-red-50 text-red-700"
+    }`}
+  >
+    <p>{message}</p>
+    <button
+      type="button"
+      onClick={onRetry}
+      className="mt-4 cursor-pointer rounded-full bg-[#3ddc6e] px-5 py-2 text-sm font-bold text-black transition hover:bg-gray-950 hover:text-white"
+    >
+      {retryLabel}
+    </button>
+  </div>
+);
+
+/* ----------------------------- UI options ----------------------------- */
+// Form options are UI, not page content.
+
+const FEATURE_ICONS: Record<string, React.ElementType> = {
+  headphones: FiHeadphones,
+  clock: FiClock,
+  users: FiUsers,
+  shield: FiShield,
+};
 
 const SERVICES = [
   "Audit & Assurance",
@@ -93,8 +196,28 @@ const Field = ({ icon: Icon, className = "", children }: FieldProps) => (
 /* ---------------------------- Component ----------------------------- */
 
 const Contact = () => {
+  const lang = useLang();
+  const t = UI[lang];
+  const { data, isLoading, isError, refetch } = useGetContactContentQuery();
+
+  const [submitEnquiry, { isLoading: isSubmitting }] =
+    useSubmitEnquiryMutation();
+
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitted, setSubmitted] = useState(false);
+  const [submitFailed, setSubmitFailed] = useState(false);
+
+  const bgImage = data ? pickMediaUrl(data.sectionBgImage, lang) : "";
+  const features = data ? activeSorted(data.features) : [];
+
+  const badge = data ? pickPlain(data.sectionBadge, lang) : "";
+  const title = data ? pickPlain(data.sectionTitle, lang) : "";
+  const highlight = data ? pickPlain(data.sectionHighlight, lang) : "";
+  const description = data ? pickPlain(data.sectionDescription, lang) : "";
+  const note = data ? pickPlain(data.sectionNote, lang) : "";
+  const formTitle = data ? pickPlain(data.formTitle, lang) : "";
+  const formDescription = data ? pickPlain(data.formDescription, lang) : "";
+  const formDisclaimer = data ? pickPlain(data.formDisclaimer, lang) : "";
 
   const onChange = (
     e: React.ChangeEvent<
@@ -103,23 +226,45 @@ const Contact = () => {
   ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setSubmitted(false);
+    setSubmitFailed(false);
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Connect your API or email service here.
-    console.log("Contact form:", form);
-    setSubmitted(true);
+    if (isSubmitting) return;
+
+    setSubmitFailed(false);
+    try {
+      // POST /enquiries. Fields map to the backend's createEnquirySchema.
+      await submitEnquiry({
+        name: form.name.trim(),
+        companyName: form.company.trim(),
+        email: form.email.trim(),
+        countryCode: form.code,
+        mobile: form.phone.replace(/\D/g, ""),
+        service: form.service,
+        requirements: form.message.trim(),
+        language: lang,
+      }).unwrap();
+      setSubmitted(true);
+    } catch {
+      setSubmitFailed(true);
+    }
   };
 
   return (
-    <main className="relative w-full  bg-white py-12 sm:py-16 lg:py-20">
-      {/* background image + white wash + top/bottom fades */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${BG_IMAGE}')` }}
-      />
+    <main
+      dir={lang === "ar" ? "rtl" : "ltr"}
+      className="relative w-full  bg-white py-12 sm:py-16 lg:py-20"
+    >
+      {/* section background (only when uploaded) + white wash + top/bottom fades */}
+      {bgImage && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url('${bgImage}')` }}
+        />
+      )}
       <div aria-hidden="true" className="absolute inset-0 bg-white/60" />
       <div
         aria-hidden="true"
@@ -134,49 +279,123 @@ const Contact = () => {
         <div className="grid items-center gap-10 rounded-3xl border border-[#3ddc6e]/30 bg-white/90 p-5 shadow-sm sm:p-8 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:p-10">
           {/* Left: copy + features */}
           <div>
-            <span className="inline-block rounded-full bg-[#3ddc6e] px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-black">
-              Reach out to us
-            </span>
+            {isError ? (
+              <ContentError
+                message={t.loadError}
+                retryLabel={t.retry}
+                onRetry={() => refetch()}
+              />
+            ) : (
+              <>
+                {isLoading ? (
+                  <Skeleton className="h-6 w-36 rounded-full" />
+                ) : (
+                  badge && (
+                    <span className="inline-block rounded-full bg-[#3ddc6e] px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-black">
+                      {badge}
+                    </span>
+                  )
+                )}
 
-            <h2 className="mt-4 text-3xl font-bold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
-              We’re Here to Help
-              <br />
-              <span className="text-[#00852B]">Your Business Grow</span>
-            </h2>
-
-            <p className="mt-5 max-w-lg text-sm leading-7 text-gray-600 sm:text-base">
-              For any queries, assistance, or potential collaborations — our
-              team is ready to listen. Tell us what you need and the right
-              specialist will come back to you.
-            </p>
-            <p className="mt-3 text-sm font-bold text-gray-900">
-              Your inquiries are important to us.
-            </p>
-
-            <ul className="mt-8 space-y-5">
-              {FEATURES.map(({ icon: Icon, title, text }) => (
-                <li key={title} className="flex items-start gap-6 mb-10">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#3ddc6e] text-black">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3 className="text-sm font-bold text-gray-900">{title}</h3>
-                    <p className="mt-0.5 text-sm text-gray-600">{text}</p>
+                {isLoading ? (
+                  <div className="mt-4 space-y-3">
+                    <Skeleton className="h-10 w-4/5" />
+                    <Skeleton className="h-10 w-3/5" />
                   </div>
-                </li>
-              ))}
-            </ul>
+                ) : (
+                  (title || highlight) && (
+                    <h2 className="mt-4 text-3xl font-bold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                      {title}
+                      {title && highlight && <br />}
+                      {highlight && (
+                        <span className="text-[#00852B]">{highlight}</span>
+                      )}
+                    </h2>
+                  )
+                )}
+
+                {isLoading ? (
+                  <div className="mt-5 max-w-lg space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-11/12" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ) : (
+                  description && (
+                    <p className="mt-5 max-w-lg text-sm leading-7 text-gray-600 sm:text-base">
+                      {description}
+                    </p>
+                  )
+                )}
+
+                {isLoading ? (
+                  <Skeleton className="mt-3 h-4 w-52" />
+                ) : (
+                  note && (
+                    <p className="mt-3 text-sm font-bold text-gray-900">
+                      {note}
+                    </p>
+                  )
+                )}
+
+                <ul className="mt-8 space-y-5">
+                  {isLoading &&
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <li key={i} className="flex items-start gap-6">
+                        <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
+                        <div className="w-full space-y-2">
+                          <Skeleton className="h-4 w-1/2" />
+                          <Skeleton className="h-3 w-4/5" />
+                        </div>
+                      </li>
+                    ))}
+
+                  {!isLoading &&
+                    features.map((feature) => {
+                      const Icon = FEATURE_ICONS[feature.icon] ?? FiShield;
+                      return (
+                        <li
+                          key={feature._id ?? feature.icon}
+                          className="mb-10 flex items-start gap-6"
+                        >
+                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#3ddc6e] text-black">
+                            <Icon className="h-5 w-5" aria-hidden="true" />
+                          </span>
+                          <div>
+                            <h3 className="text-sm font-bold text-gray-900">
+                              {pickPlain(feature.title, lang)}
+                            </h3>
+                            <p className="mt-0.5 text-sm text-gray-600">
+                              {pickPlain(feature.description, lang)}
+                            </p>
+                          </div>
+                        </li>
+                      );
+                    })}
+                </ul>
+              </>
+            )}
           </div>
 
-          {/* Right: dark form card */}
+          {/* Right: dark form card (form fields are UI, content above is from the API) */}
           <div className="rounded-2xl border border-[#3ddc6e]/40 bg-linear-to-b from-[#0d0d12] to-black p-5 text-white shadow-xl sm:p-6">
-            <h3 className="text-xl font-bold sm:text-2xl">
-              Book your Free Consultation
-            </h3>
-            <p className="mt-1.5 text-xs leading-5 text-white/80">
-              Fill out the form below, and we’ll arrange a consultation at a
-              time most suitable for you.
-            </p>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton tone="dark" className="h-7 w-3/4" />
+                <Skeleton tone="dark" className="h-3 w-full" />
+              </div>
+            ) : (
+              <>
+                {formTitle && (
+                  <h3 className="text-xl font-bold sm:text-2xl">{formTitle}</h3>
+                )}
+                {formDescription && (
+                  <p className="mt-1.5 text-xs leading-5 text-white/80">
+                    {formDescription}
+                  </p>
+                )}
+              </>
+            )}
             <hr className="my-4 border-white/10" />
 
             {submitted ? (
@@ -310,15 +529,30 @@ const Contact = () => {
                   />
                 </Field>
 
-                <ThemeBtn className="w-full">Send Message</ThemeBtn>
+                {submitFailed && (
+                  <p role="alert" className="text-sm text-red-300">
+                    {t.submitError}
+                  </p>
+                )}
 
-                <p className="flex items-center justify-center gap-1.5 text-xs text-white/70">
-                  <FiShield
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 text-[#3ddc6e]"
-                  />
-                  No obligation
-                </p>
+                <ThemeBtn
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                >
+                  {isSubmitting ? t.sending : "Send Message"}
+                </ThemeBtn>
+
+                {formDisclaimer && (
+                  <p className="flex items-center justify-center gap-1.5 text-xs text-white/70">
+                    <FiShield
+                      aria-hidden="true"
+                      className="h-3.5 w-3.5 text-[#3ddc6e]"
+                    />
+                    {formDisclaimer}
+                  </p>
+                )}
               </form>
             )}
           </div>

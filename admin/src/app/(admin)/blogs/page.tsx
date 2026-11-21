@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
+import RichTextEditor from '@/components/RichTextEditor'
 import {
   useGetBlogSectionQuery,
   useUpdateBlogSectionMutation,
@@ -17,10 +18,17 @@ const languages: Lang[] = ['en', 'ar']
 const loc = (): Localized => ({ en: '', ar: '' })
 const media = (): LocalizedMedia => ({ en: { url: '', publicId: '' }, ar: { url: '', publicId: '' } })
 const objectId = () => Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
+const plainText = (html: string) =>
+  html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .trim()
 const slugify = (s: string) =>
   s
     .toLowerCase()
     .trim()
+    .replace(/<[^>]*>/g, ' ')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 const newCategory = (): BlogCategory => ({ _id: objectId(), name: loc(), slug: '', order: 0, active: true })
@@ -59,7 +67,12 @@ export default function BlogsAdminPage() {
     try {
       const body = new FormData()
       body.append('image', file)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1/api'}/blog/image`, { method: 'POST', body })
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1/api'}/blog/image`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body,
+      })
       const result = await response.json()
       if (!response.ok) throw new Error(result.message || 'Upload failed')
       done(result.data)
@@ -73,7 +86,7 @@ export default function BlogsAdminPage() {
   const imageInput = (value: LocalizedMedia, onChange: (v: LocalizedMedia) => void) => (
     <div className="row g-3">
       {languages.map((lang) => (
-        <div className="col-md-6" key={lang}>
+        <div className="col-12 col-md-6" key={lang}>
           <label className="form-label">{lang === 'en' ? 'English' : 'Arabic'} image</label>
           <input
             className="form-control"
@@ -92,19 +105,19 @@ export default function BlogsAdminPage() {
       ))}
     </div>
   )
-  const localizedInput = (label: string, value: Localized, onChange: (v: Localized) => void, rows = 2) => (
+  const localizedInput = (label: string, value: Localized, onChange: (v: Localized) => void, _rows = 2) => (
     <div className="mb-3">
       <label className="form-label fw-semibold">{label}</label>
       <div className="row g-3">
         {languages.map((lang) => (
-          <div className="col-md-6" key={lang}>
+          <div className="col-12 col-lg-6" key={lang}>
             <label className="form-label small">{lang === 'en' ? 'English' : 'Arabic'}</label>
-            <textarea
-              className="form-control"
-              rows={rows}
-              dir={lang === 'ar' ? 'rtl' : 'ltr'}
+            <RichTextEditor
               value={value[lang]}
-              onChange={(e) => onChange({ ...value, [lang]: e.target.value })}
+              onChange={(html) => onChange({ ...value, [lang]: html })}
+              disabled={saving || uploading}
+              dir={lang === 'ar' ? 'rtl' : 'ltr'}
+              lang={lang}
             />
           </div>
         ))}
@@ -113,9 +126,9 @@ export default function BlogsAdminPage() {
   )
   const save = async () => {
     if (!draft) return
-    if (draft.categories.some((c) => !c.name.en.trim() || !c.name.ar.trim() || !c.slug.trim()))
+    if (draft.categories.some((c) => !plainText(c.name.en) || !plainText(c.name.ar) || !c.slug.trim()))
       return toast.error('Fill both category names and slug')
-    if (draft.articles.some((a) => !a.title.en.trim() || !a.title.ar.trim() || !a.slug.trim() || !a.categoryId))
+    if (draft.articles.some((a) => !plainText(a.title.en) || !plainText(a.title.ar) || !a.slug.trim() || !a.categoryId))
       return toast.error('Fill both article titles, slug, and category')
     try {
       await saveSection(draft).unwrap()
@@ -142,13 +155,13 @@ export default function BlogsAdminPage() {
   const category = editingCategory !== null ? draft.categories[editingCategory] : null
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h4>Insights & Resources / Blogs</h4>
         <button className="btn btn-primary" disabled={saving || uploading} onClick={save}>
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
-      <div className="d-flex gap-2 mb-4">
+      <div className="d-flex flex-wrap gap-2 mb-4">
         {(['articles', 'categories', 'hero'] as const).map((t) => (
           <button key={t} className={`btn ${tab === t ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={() => setTab(t)}>
             {t === 'hero' ? 'Banner Settings' : t === 'articles' ? 'Blog Articles' : 'Categories'}
@@ -169,7 +182,7 @@ export default function BlogsAdminPage() {
       )}
       {tab === 'categories' && (
         <>
-          <div className="d-flex justify-content-between mb-3">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
             <h5>Categories ({draft.categories.length})</h5>
             <button
               className="btn btn-primary"
@@ -181,7 +194,7 @@ export default function BlogsAdminPage() {
             </button>
           </div>
           <div className="table-responsive card">
-            <table className="table table-hover mb-0">
+            <table className="table table-hover mb-0 align-middle">
               <thead>
                 <tr>
                   <th>English</th>
@@ -195,8 +208,8 @@ export default function BlogsAdminPage() {
               <tbody>
                 {draft.categories.map((c, i) => (
                   <tr key={c._id || i}>
-                    <td>{c.name.en}</td>
-                    <td>{c.name.ar}</td>
+                    <td>{plainText(c.name.en)}</td>
+                    <td>{plainText(c.name.ar)}</td>
                     <td>{c.slug}</td>
                     <td>{c.order}</td>
                     <td>{c.active ? 'Active' : 'Hidden'}</td>
@@ -223,7 +236,7 @@ export default function BlogsAdminPage() {
       )}
       {tab === 'articles' && (
         <>
-          <div className="d-flex justify-content-between mb-3">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
             <h5>Blog Articles ({draft.articles.length})</h5>
             <button
               className="btn btn-primary"
@@ -236,7 +249,7 @@ export default function BlogsAdminPage() {
             </button>
           </div>
           <div className="table-responsive card">
-            <table className="table table-hover mb-0">
+            <table className="table table-hover mb-0 align-middle">
               <thead>
                 <tr>
                   <th>Title (EN)</th>
@@ -250,9 +263,13 @@ export default function BlogsAdminPage() {
               <tbody>
                 {draft.articles.map((a, i) => (
                   <tr key={a._id || i}>
-                    <td>{a.title.en}</td>
-                    <td>{a.title.ar}</td>
-                    <td>{draft.categories.find((c) => c._id === a.categoryId)?.name.en || 'Unknown'}</td>
+                    <td>{plainText(a.title.en)}</td>
+                    <td>{plainText(a.title.ar)}</td>
+                    <td>
+                      {draft.categories.find((c) => c._id === a.categoryId)?.name.en
+                        ? plainText(draft.categories.find((c) => c._id === a.categoryId)!.name.en)
+                        : 'Unknown'}
+                    </td>
                     <td>{a.publishedAt?.slice(0, 10)}</td>
                     <td>{a.status}</td>
                     <td>
@@ -285,8 +302,8 @@ export default function BlogsAdminPage() {
             }}
           />
           <div
-            className="position-fixed top-0 end-0 bg-white h-100 shadow-lg p-4"
-            style={{ width: 850, maxWidth: '100%', zIndex: 1050, overflowY: 'auto' }}>
+            className="position-fixed top-0 end-0 bg-white h-100 shadow-lg p-3 p-md-4"
+            style={{ width: 850, maxWidth: '100vw', zIndex: 1050, overflowY: 'auto', overflowX: 'hidden' }}>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5>{category ? 'Category' : 'Blog Article'}</h5>
               <button
@@ -329,7 +346,7 @@ export default function BlogsAdminPage() {
                   onChange={(e) => setArticle(editingArticle, { categoryId: e.target.value })}>
                   {draft.categories.map((c) => (
                     <option key={c._id} value={c._id}>
-                      {c.name.en} / {c.name.ar}
+                      {plainText(c.name.en)} / {plainText(c.name.ar)}
                     </option>
                   ))}
                 </select>
@@ -346,17 +363,19 @@ export default function BlogsAdminPage() {
                 {imageInput(article.cardImage, (v) => setArticle(editingArticle, { cardImage: v }))}
                 <h6 className="mt-3">Main article images</h6>
                 {imageInput(article.mainImage, (v) => setArticle(editingArticle, { mainImage: v }))}
-                <div className="row mt-3">
-                  <div className="col-md-4">
+                <div className="row g-3 mt-3">
+                  <div className="col-12 col-md-4">
                     <label className="form-label">Published date</label>
                     <input
                       type="date"
                       className="form-control"
-                      value={article.publishedAt.slice(0, 10)}
-                      onChange={(e) => setArticle(editingArticle, { publishedAt: new Date(e.target.value).toISOString() })}
+                      value={article.publishedAt?.slice(0, 10) || ''}
+                      onChange={(e) => {
+                        if (e.target.value) setArticle(editingArticle, { publishedAt: new Date(`${e.target.value}T00:00:00`).toISOString() })
+                      }}
                     />
                   </div>
-                  <div className="col-md-4">
+                  <div className="col-12 col-md-4">
                     <label className="form-label">Status</label>
                     <select
                       className="form-select"
@@ -366,7 +385,7 @@ export default function BlogsAdminPage() {
                       <option value="published">Published</option>
                     </select>
                   </div>
-                  <div className="col-md-4">
+                  <div className="col-12 col-md-4">
                     <label className="form-label">Order</label>
                     <input
                       className="form-control"

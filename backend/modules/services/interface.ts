@@ -37,3 +37,12 @@ export interface IService {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface IServicesBanner {
+  title: ILocalized;
+  subtitle: ILocalized;
+  bgImage: ILocalizedMedia;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+}

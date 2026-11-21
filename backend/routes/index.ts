@@ -22,10 +22,12 @@ import { enquiryRouter } from "../modules/enquiries/enquiry.routes";
 import { contactContentRouter } from "../modules/contact-content/route";
 import { legalPageRouter } from "../modules/P&T/legal.routes";
 import { siteSettingsRouter } from "../modules/settings/route";
+import { adminAuthRouter } from "../modules/admin-auth/admin.routes";
 
 const router = Router();
 
 const moduleRoutes = [
+  { path: "/admin-auth", route: adminAuthRouter },
   {
     path: "/banners",
     route: homeBnnerRouter,

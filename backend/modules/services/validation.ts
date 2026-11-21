@@ -33,3 +33,8 @@ export const updateServiceSchema = z.object({
     )
     .optional(),
 });
+
+export const updateServicesBannerSchema = z.object({
+  title: localizedString.optional(),
+  subtitle: localizedString.optional(),
+});

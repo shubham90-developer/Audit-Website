@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { Service } from "./model";
-import { createServiceSchema, updateServiceSchema } from "./validation";
+import { Service, ServicesBanner } from "./model";
+import {
+  createServiceSchema,
+  updateServiceSchema,
+  updateServicesBannerSchema,
+} from "./validation";
 
 import { uploadMany, deleteFromCloudinary } from "../../middlewares/upload";
 
@@ -398,6 +402,119 @@ export const deleteService = async (req: Request, res: Response) => {
     res.status(200).json({
       status: "success",
       message: "Service deleted successfully",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Services page banner (singleton)
+// ---------------------------------------------------------------------------
+
+const bannerDefaults = {
+  title: {
+    en: "Professional Accounting, Tax & Business Services",
+    ar: "خدمات المحاسبة والضرائب والأعمال المهنية",
+  },
+  subtitle: {
+    en: "Tax, accounting, audit and company formation under one roof, across borders. Six groups, one senior team, and the same people from the first call to the filing.",
+    ar: "الضرائب والمحاسبة والتدقيق وتأسيس الشركات تحت سقف واحد وعبر الحدود. ست مجموعات، وفريق واحد من كبار الخبراء، ونفس الأشخاص من أول مكالمة حتى تقديم الإقرارات.",
+  },
+  bgImage: { en: [], ar: [] },
+};
+
+// Returns the banner document, creating it with defaults on first use.
+const ensureBanner = () =>
+  ServicesBanner.findOneAndUpdate(
+    {},
+    { $setOnInsert: bannerDefaults },
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
+  );
+
+// GET /services/page-banner
+export const getServicesBanner = async (_req: Request, res: Response) => {
+  try {
+    const banner = await ensureBanner();
+
+    res.status(200).json({
+      status: "success",
+      data: banner,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// PATCH /services/page-banner
+export const updateServicesBanner = async (req: Request, res: Response) => {
+  try {
+    const parsed = updateServicesBannerSchema.safeParse(
+      normalizeBody(req.body),
+    );
+
+    if (!parsed.success) {
+      res.status(400).json({
+        status: "error",
+        message: parsed.error.issues
+          .map((i) => `${i.path.join(".")}: ${i.message}`)
+          .join(", "),
+      });
+      return;
+    }
+
+    const banner = await ensureBanner();
+
+    if (!banner) {
+      res.status(500).json({
+        status: "error",
+        message: "Services banner could not be created",
+      });
+      return;
+    }
+
+    // upload.fields() puts files in an object keyed by field name.
+    const files = Object.values(
+      (req.files ?? {}) as Record<string, Express.Multer.File[]>,
+    ).flat();
+
+    const toDelete: string[] = [];
+
+    if (parsed.data.title) banner.title = parsed.data.title;
+    if (parsed.data.subtitle) banner.subtitle = parsed.data.subtitle;
+
+    for (const lang of LANGS) {
+      const uploadName = `bgImage${lang === "en" ? "En" : "Ar"}`;
+
+      if (!files.some((file: any) => file.fieldname === uploadName)) continue;
+
+      const current = banner.get(`bgImage.${lang}`) ?? [];
+
+      toDelete.push(...mediaIds(current));
+
+      const uploaded = await uploadField(
+        files,
+        uploadName,
+        "audit-website/services/banner",
+        "image",
+      );
+
+      banner.set(`bgImage.${lang}`, uploaded);
+    }
+
+    await banner.save();
+
+    await deleteMedia(toDelete, "image");
+
+    res.status(200).json({
+      status: "success",
+      data: banner,
     });
   } catch (error: any) {
     res.status(500).json({

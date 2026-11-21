@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IService } from "./interface";
+import { IService, IServicesBanner } from "./interface";
 
 const localizedString = {
   en: { type: String, required: true, trim: true },
@@ -50,3 +50,18 @@ const serviceSchema = new Schema<IService>(
 );
 
 export const Service = model<IService>("Service", serviceSchema);
+
+// Singleton document: the banner shown at the top of the /services page.
+const servicesBannerSchema = new Schema<IServicesBanner>(
+  {
+    title: localizedString,
+    subtitle: localizedString,
+    bgImage: localizedMedia,
+  },
+  { timestamps: true },
+);
+
+export const ServicesBanner = model<IServicesBanner>(
+  "ServicesBanner",
+  servicesBannerSchema,
+);

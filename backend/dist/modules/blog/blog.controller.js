@@ -48,12 +48,13 @@ exports.getBlogSection = getBlogSection;
 const updateBlogSection = async (req, res, next) => {
     try {
         const result = blog_validation_1.sectionInput.safeParse(req.body);
-        if (!result.success)
+        if (!result.success) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid blog data",
                 errors: result.error.flatten(),
             });
+        }
         const data = await blog_model_1.BlogSection.findOneAndUpdate({ key: "insights" }, { $set: result.data }, { upsert: true, returnDocument: "after", runValidators: true });
         res.json({ success: true, data });
     }
@@ -66,10 +67,11 @@ const getPublishedArticle = async (req, res, next) => {
     try {
         const section = await blog_model_1.BlogSection.findOne({ key: "insights" }).lean();
         const article = section?.articles?.find((item) => item.slug === req.params.slug && item.status === "published");
-        if (!article)
+        if (!article) {
             return res
                 .status(404)
                 .json({ success: false, message: "Article not found" });
+        }
         res.json({ success: true, data: article });
     }
     catch (error) {
@@ -79,12 +81,13 @@ const getPublishedArticle = async (req, res, next) => {
 exports.getPublishedArticle = getPublishedArticle;
 const uploadBlogImage = async (req, res, next) => {
     try {
-        if (!req.file)
+        if (!req.file) {
             return res
                 .status(400)
                 .json({ success: false, message: "Image required" });
+        }
         const data = await (0, upload_1.uploadBuffer)(req.file.buffer, "audit-blog", "image");
-        res.json({ success: true, data }); // data = { url, publicId }
+        res.json({ success: true, data }); // { url, publicId }
     }
     catch (error) {
         next(error);

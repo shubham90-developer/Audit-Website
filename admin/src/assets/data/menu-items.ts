@@ -1,134 +1,97 @@
 import { MenuItemType } from '@/types/menu'
 
 export const MENU_ITEMS: MenuItemType[] = [
-  // GENERAL
-  {
-    key: 'general',
-    label: 'GENERAL',
-    isTitle: true,
-  },
-  {
-    key: 'dashboard',
-    label: 'Dashboard',
-    icon: 'solar:widget-5-bold-duotone',
-    url: '/dashboard',
-  },
-
   // ENQUIRIES
   {
-    key: 'enquires',
+    key: 'enquiries-section',
     label: 'ENQUIRIES',
     isTitle: true,
   },
   {
-    key: 'contact-enquires',
-    label: 'Contact Enquiries',
-    icon: 'solar:letter-bold-duotone',
-    url: '/contact-enquires',
-  },
-  {
-    key: 'store-enquires',
-    label: 'Product Enquiries',
-    icon: 'solar:chat-round-dots-bold-duotone',
-    url: '/product-enquires',
+    key: 'enquiries',
+    label: 'Enquiries',
+    icon: 'solar:inbox-bold-duotone',
+    url: '/enquiries',
   },
 
-  // PRODUCTS
+  // HOME PAGE
   {
-    key: 'products',
-    label: 'PRODUCTS',
+    key: 'home-page-section',
+    label: 'HOME PAGE',
     isTitle: true,
   },
   {
-    key: 'categories',
-    label: 'Categories',
-    icon: 'solar:widget-3-bold-duotone',
-    url: '/categories',
-  },
-  {
-    key: 'products-list',
-    label: 'Products List',
-    icon: 'solar:box-bold-duotone',
-    url: '/products',
-  },
-
-  // WEB PAGES
-  {
-    key: 'web-pages',
-    label: 'WEB PAGES',
-    isTitle: true,
-  },
-  {
-    key: 'homeBanner',
+    key: 'home-banner',
     label: 'Home Banner',
-    icon: 'solar:gallery-bold-duotone',
+    icon: 'solar:gallery-wide-bold-duotone',
     url: '/home-banner',
   },
   {
-    key: 'Our Partners',
+    key: 'our-partners',
     label: 'Our Partners',
-    icon: 'solar:gallery-bold-duotone',
+    icon: 'solar:hand-shake-bold-duotone',
     url: '/our-partners',
   },
   {
-    key: 'Who We Serve',
+    key: 'who-we-serve',
     label: 'Who We Serve',
-    icon: 'solar:gallery-bold-duotone',
+    icon: 'solar:users-group-rounded-bold-duotone',
     url: '/who-we-serve',
   },
   {
-    key: 'What We Do',
+    key: 'what-we-do',
     label: 'What We Do',
-    icon: 'solar:gallery-bold-duotone',
+    icon: 'solar:case-bold-duotone',
     url: '/what-we-do',
   },
   {
     key: 'numbers-presence',
     label: 'Numbers & Presence',
-    icon: 'solar:globe-bold-duotone',
+    icon: 'solar:global-bold-duotone',
     url: '/numbers-presence',
   },
   {
     key: 'how-we-work',
     label: 'How We Work',
-    icon: 'solar:routing-2-bold-duotone',
+    icon: 'solar:route-bold-duotone',
     url: '/how-we-work',
+  },
+  {
+    key: 'ready-to-work',
+    label: 'Ready to Work',
+    icon: 'solar:phone-calling-bold-duotone',
+    url: '/ready-to-work',
+  },
+
+  // ABOUT & COMPANY
+  {
+    key: 'company-section',
+    label: 'ABOUT & COMPANY',
+    isTitle: true,
+  },
+  {
+    key: 'about-us',
+    label: 'About Us',
+    icon: 'solar:info-circle-bold-duotone',
+    url: '/about-us',
   },
   {
     key: 'who-we-are',
     label: 'Who We Are',
-    icon: 'solar:routing-2-bold-duotone',
+    icon: 'solar:users-group-two-rounded-bold-duotone',
     url: '/who-we-are',
   },
   {
     key: 'our-story',
     label: 'Our Story',
-    icon: 'solar:history-bold-duotone',
+    icon: 'solar:book-2-bold-duotone',
     url: '/our-story',
-  },
-  {
-    key: 'global-markets',
-    label: 'Global Markets',
-    icon: 'solar:history-bold-duotone',
-    url: '/global-markets',
   },
   {
     key: 'leadership',
     label: 'Leadership',
-    icon: 'solar:history-bold-duotone',
+    icon: 'solar:user-speak-bold-duotone',
     url: '/leadership',
-  },
-  {
-    key: 'services',
-    label: 'Services',
-    icon: 'solar:history-bold-duotone',
-    url: '/services',
-  },
-  {
-    key: 'testimonial',
-    label: 'Testimonial',
-    icon: 'solar:history-bold-duotone',
-    url: '/testimonial',
   },
   {
     key: 'meet-the-team',
@@ -137,40 +100,23 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/meet-the-team',
   },
   {
-    key: 'about-us',
-    label: 'About us',
-    icon: 'solar:users-group-rounded-bold-duotone',
-    url: '/about-us',
+    key: 'global-markets',
+    label: 'Global Markets',
+    icon: 'solar:globus-bold-duotone',
+    url: '/global-markets',
+  },
+
+  // SERVICES & CONTENT
+  {
+    key: 'services-content-section',
+    label: 'SERVICES & CONTENT',
+    isTitle: true,
   },
   {
-    key: 'blogs',
-    label: 'Blogs',
-    icon: 'solar:users-group-rounded-bold-duotone',
-    url: '/blogs',
-  },
-  {
-    key: 'enquiries',
-    label: 'Enquiries',
-    icon: 'solar:users-group-rounded-bold-duotone',
-    url: '/enquiries',
-  },
-  {
-    key: 'enquiries',
-    label: 'Contact Us',
-    icon: 'solar:users-group-rounded-bold-duotone',
-    url: '/contact-us',
-  },
-  {
-    key: 'P&T',
-    label: 'P&T',
-    icon: 'solar:users-group-rounded-bold-duotone',
-    url: '/P&T',
-  },
-  {
-    key: 'ready-to-work',
-    label: 'Ready to Work',
-    icon: 'solar:phone-calling-bold-duotone',
-    url: '/ready-to-work',
+    key: 'services',
+    label: 'Services',
+    icon: 'solar:case-round-bold-duotone',
+    url: '/services',
   },
   {
     key: 'industries',
@@ -179,52 +125,47 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/industries',
   },
   {
-    key: 'counter',
-    label: 'Counter',
-    icon: 'solar:chart-2-bold-duotone',
-    url: '/counter',
+    key: 'testimonials',
+    label: 'Testimonials',
+    icon: 'solar:chat-round-like-bold-duotone',
+    url: '/testimonial',
   },
   {
-    key: 'why-choose-us',
-    label: 'Why Choose Us',
-    icon: 'solar:medal-star-bold-duotone',
-    url: '/why-choose-us',
-  },
-  {
-    key: 'how-to-order',
-    label: 'How To Order',
-    icon: 'solar:cart-large-2-bold-duotone',
-    url: '/how-to-order',
-  },
-  {
-    key: 'aboutUs',
-    label: 'About Us',
-    icon: 'solar:info-circle-bold-duotone',
-    url: '/about-us',
+    key: 'blogs',
+    label: 'Blogs & Insights',
+    icon: 'solar:document-text-bold-duotone',
+    url: '/blogs',
   },
   {
     key: 'faq',
-    label: 'FAQ',
+    label: 'FAQs',
     icon: 'solar:question-circle-bold-duotone',
     url: '/faq',
   },
+
+  // CONTACT & LEGAL
   {
-    key: 'privacy-policy',
-    label: 'Privacy Policy',
-    icon: 'solar:shield-check-bold-duotone',
-    url: '/privacy-policy',
+    key: 'contact-legal-section',
+    label: 'CONTACT & LEGAL',
+    isTitle: true,
   },
   {
-    key: 'terms-and-conditions',
-    label: 'Terms and Conditions',
-    icon: 'solar:document-text-bold-duotone',
-    url: '/terms-and-conditions',
+    key: 'contact-us',
+    label: 'Contact Us',
+    icon: 'solar:letter-bold-duotone',
+    url: '/contact-us',
+  },
+  {
+    key: 'policies-terms',
+    label: 'Policies & Terms',
+    icon: 'solar:document-bold-duotone',
+    url: '/P&T',
   },
 
-  // GENERAL SETTINGS
+  // SETTINGS
   {
-    key: 'general-settings',
-    label: 'GENERAL SETTINGS',
+    key: 'general-settings-section',
+    label: 'SETTINGS',
     isTitle: true,
   },
   {

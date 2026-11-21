@@ -31,8 +31,8 @@ const useSignIn = () => {
     resolver: yupResolver(loginFormSchema),
 
     defaultValues: {
-      email: 'admin@gmail.com',
-      password: 'admin123',
+      email: '',
+      password: '',
     },
   })
 
@@ -40,32 +40,19 @@ const useSignIn = () => {
     try {
       const result = await loginUser(values).unwrap()
 
-      console.log('LOGIN RESULT', result)
-
-      // save token
-      localStorage.setItem('token', result.token)
-
-      dispatch(
-        setCredentials({
-          token: result.token,
-          // @ts-ignore
-          user: result.data,
-        }),
-      )
+      // setCredentials persists token + user (localStorage) and sets the cookie read by middleware.ts
+      dispatch(setCredentials({ token: result.token, user: result.data }))
 
       showNotification({
         message: result.message || 'Login successful',
         variant: 'success',
       })
 
-      // redirect
-      router.push('/dashboard')
-
-      // OR
-      // window.location.href = '/dashboard'
+      // honour ?redirect=/some/page set by middleware (same-origin paths only)
+      const redirect = new URLSearchParams(window.location.search).get('redirect')
+      router.replace(redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/dashboard')
+      router.refresh()
     } catch (error: any) {
-      console.log('LOGIN ERROR', error)
-
       showNotification({
         message: error?.data?.message || 'Login failed',
         variant: 'danger',

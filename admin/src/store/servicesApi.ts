@@ -1,5 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { Localized, LocalizedMedia } from './bannerApi'
+import type { Localized, LocalizedMedia, BannerMedia } from './bannerApi'
+
+// imgPicker.tsx imports `Media` from this file
+export type Media = BannerMedia
 
 export interface IServiceDetail {
   _id?: string
@@ -25,6 +28,27 @@ export interface IService {
 
   createdAt: string
   updatedAt: string
+}
+
+export interface ServicesBanner {
+  _id: string
+
+  title: Localized
+  subtitle: Localized
+  bgImage: LocalizedMedia
+
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ServicesBannerText {
+  title: Localized
+  subtitle: Localized
+}
+
+export interface ServicesBannerFiles {
+  bgImageEn?: File
+  bgImageAr?: File
 }
 
 export interface ServiceText {
@@ -86,7 +110,7 @@ export const servicesApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
   }),
 
-  tagTypes: ['Services'],
+  tagTypes: ['Services', 'ServicesBanner'],
 
   endpoints: (builder) => ({
     getAdminServices: builder.query<IService[], void>({
@@ -95,6 +119,26 @@ export const servicesApi = createApi({
       transformResponse: (res: { data: IService[] }) => res.data,
 
       providesTags: ['Services'],
+    }),
+
+    getServicesBanner: builder.query<ServicesBanner, void>({
+      query: () => '/services/page-banner',
+
+      transformResponse: (res: { data: ServicesBanner }) => res.data,
+
+      providesTags: ['ServicesBanner'],
+    }),
+
+    updateServicesBanner: builder.mutation<ServicesBanner, { data: ServicesBannerText; files?: ServicesBannerFiles }>({
+      query: ({ data, files }) => ({
+        url: '/services/page-banner',
+        method: 'PATCH',
+        body: buildFormData(data, files),
+      }),
+
+      transformResponse: (res: { data: ServicesBanner }) => res.data,
+
+      invalidatesTags: ['ServicesBanner'],
     }),
 
     getServiceById: builder.query<IService, string>({
@@ -147,5 +191,12 @@ export const servicesApi = createApi({
   }),
 })
 
-export const { useGetAdminServicesQuery, useGetServiceByIdQuery, useCreateServiceMutation, useUpdateServiceMutation, useDeleteServiceMutation } =
-  servicesApi
+export const {
+  useGetAdminServicesQuery,
+  useGetServicesBannerQuery,
+  useUpdateServicesBannerMutation,
+  useGetServiceByIdQuery,
+  useCreateServiceMutation,
+  useUpdateServiceMutation,
+  useDeleteServiceMutation,
+} = servicesApi

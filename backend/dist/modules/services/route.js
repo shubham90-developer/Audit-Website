@@ -7,6 +7,13 @@ const controller_1 = require("./controller");
 const router = (0, express_1.Router)();
 // upload.any() is needed because detail images use dynamic
 // field names such as detailImageEn_0 and detailImageAr_1.
+// Page banner (singleton). These must stay above the "/:id" routes,
+// otherwise "page-banner" would be treated as a service id.
+router.get("/page-banner", controller_1.getServicesBanner);
+router.patch("/page-banner", upload_1.upload.fields([
+    { name: "bgImageEn", maxCount: 1 },
+    { name: "bgImageAr", maxCount: 1 },
+]), controller_1.updateServicesBanner);
 router.get("/", controller_1.getServices);
 router.get("/:id", controller_1.getServiceById);
 router.post("/", upload_1.upload.any(), controller_1.createService);

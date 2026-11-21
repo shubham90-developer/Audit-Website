@@ -43,12 +43,26 @@ export interface Service {
   updatedAt: string;
 }
 
+export interface ServicesBanner {
+  _id: string;
+  title: Localized;
+  subtitle: Localized;
+  bgImage: LocalizedMedia;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /** Public GET endpoints only; no admin write operations exposed. */
 export const servicesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getServices: builder.query<Service[], void>({
       query: () => "/services",
       transformResponse: (response: ApiEnvelope<Service[]>) => response.data,
+    }),
+    getServicesBanner: builder.query<ServicesBanner, void>({
+      query: () => "/services/page-banner",
+      transformResponse: (response: ApiEnvelope<ServicesBanner>) =>
+        response.data,
     }),
     getServiceById: builder.query<Service, string>({
       query: (id) => `/services/${encodeURIComponent(id)}`,
@@ -60,6 +74,7 @@ export const servicesApi = baseApi.injectEndpoints({
 export const {
   useGetServicesQuery,
   useLazyGetServicesQuery,
+  useGetServicesBannerQuery,
   useGetServiceByIdQuery,
   useLazyGetServiceByIdQuery,
 } = servicesApi;

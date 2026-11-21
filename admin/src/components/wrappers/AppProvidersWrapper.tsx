@@ -1,5 +1,4 @@
 'use client'
-import { SessionProvider } from 'next-auth/react'
 import { useEffect } from 'react'
 import { ToastContainer } from 'react-toastify'
 import { DEFAULT_PAGE_TITLE } from '@/context/constants'
@@ -35,16 +34,14 @@ const AppProvidersWrapper = ({ children }: ChildrenType) => {
   }, [])
 
   return (
-    <SessionProvider>
-      <LayoutProvider>
-        <TitleProvider>
-          <NotificationProvider>
-            {children}
-            <ToastContainer theme="colored" />
-          </NotificationProvider>
-        </TitleProvider>
-      </LayoutProvider>
-    </SessionProvider>
+    <LayoutProvider>
+      <TitleProvider>
+        <NotificationProvider>
+          {children}
+          <ToastContainer theme="colored" />
+        </NotificationProvider>
+      </TitleProvider>
+    </LayoutProvider>
   )
 }
 export default AppProvidersWrapper

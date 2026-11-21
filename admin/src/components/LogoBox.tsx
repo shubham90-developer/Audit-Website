@@ -1,78 +1,35 @@
 'use client'
 
-import { useGetSettingsQuery } from '@/store/settingApi'
+import { useGetSiteSettingsQuery } from '@/store/siteSettingsApi'
 import Image from 'next/image'
 import Link from 'next/link'
 
 const LogoBox = () => {
-  const { data: settingsResponse, isLoading } = useGetSettingsQuery()
+  const { data: settings, isLoading } = useGetSiteSettingsQuery()
 
-  const settings = Array.isArray(settingsResponse) ? settingsResponse[0] : ((settingsResponse as any)?.data ?? settingsResponse)
+  // API returns logos as { url, publicId }. The sidebar is dark, so use the footer (light) logo,
+  // and fall back to the main logo if no footer logo is uploaded.
+  const logoUrl = settings?.footerLogo?.url || settings?.logo?.url || ''
 
-  const logoUrl = settings?.logo || ''
+  const renderLogo = () =>
+    !isLoading &&
+    logoUrl && (
+      <>
+        <Image src={logoUrl} width={32} height={32} className="logo-sm" alt="Logo" unoptimized style={{ objectFit: 'contain' }} />
+        <Image src={logoUrl} width={150} height={50} className="logo-lg" alt="Logo" unoptimized style={{ objectFit: 'contain' }} />
+      </>
+    )
 
   return (
     <div className="logo-box">
       {/* DARK LOGO */}
-      <Link href="/" className="logo-dark">
-        {!isLoading && logoUrl && (
-          <>
-            <Image
-              src={logoUrl}
-              width={32}
-              height={32}
-              className="logo-sm"
-              alt="Logo"
-              unoptimized
-              style={{
-                objectFit: 'contain',
-              }}
-            />
-
-            <Image
-              src={logoUrl}
-              width={150}
-              height={50}
-              className="logo-lg"
-              alt="Logo"
-              unoptimized
-              style={{
-                objectFit: 'contain',
-              }}
-            />
-          </>
-        )}
+      <Link href="/dashboard" className="logo-dark">
+        {renderLogo()}
       </Link>
 
       {/* LIGHT LOGO */}
-      <Link href="/" className="logo-light">
-        {!isLoading && logoUrl && (
-          <>
-            <Image
-              src={logoUrl}
-              width={32}
-              height={32}
-              className="logo-sm"
-              alt="Logo"
-              unoptimized
-              style={{
-                objectFit: 'contain',
-              }}
-            />
-
-            <Image
-              src={logoUrl}
-              width={150}
-              height={50}
-              className="logo-lg"
-              alt="Logo"
-              unoptimized
-              style={{
-                objectFit: 'contain',
-              }}
-            />
-          </>
-        )}
+      <Link href="/dashboard" className="logo-light">
+        {renderLogo()}
       </Link>
     </div>
   )

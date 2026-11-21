@@ -18,7 +18,7 @@ const play = Play({
 
 export const metadata: Metadata = {
   title: {
-    template: 'Parwan Roastery Admin',
+    template: 'Audit Admin',
     default: DEFAULT_PAGE_TITLE,
   },
   description: 'Ecomm Admin',

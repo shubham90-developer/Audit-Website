@@ -33,7 +33,33 @@ const getUser = (): AuthUser | null => {
   }
 }
 
-const initialToken = getToken()
+// read the `exp` claim (seconds) from a JWT without verifying it - verification is the API's job
+const getExp = (token: string): number | null => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return typeof payload.exp === 'number' ? payload.exp : null
+  } catch {
+    return null
+  }
+}
+
+const clearSession = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  document.cookie = 'token=; Path=/; Max-Age=0; SameSite=Lax'
+}
+
+// drop an expired/garbage token on page load instead of starting "logged in"
+const initialToken = (() => {
+  const token = getToken()
+  if (!token || typeof window === 'undefined') return token
+  const exp = getExp(token)
+  if (!exp || exp * 1000 <= Date.now()) {
+    clearSession()
+    return null
+  }
+  return token
+})()
 
 const initialState: AuthState = {
   token: initialToken,
@@ -59,7 +85,9 @@ const authSlice = createSlice({
 
         // Cookie for Next.js middleware. Secure on HTTPS deployments.
         const secure = window.location.protocol === 'https:' ? '; Secure' : ''
-        document.cookie = `token=${encodeURIComponent(token)}; Path=/; Max-Age=86400; SameSite=Lax${secure}`
+        const exp = getExp(token)
+        const maxAge = exp ? Math.max(exp - Math.floor(Date.now() / 1000), 0) : 86400
+        document.cookie = `token=${encodeURIComponent(token)}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`
       }
     },
 
@@ -77,11 +105,7 @@ const authSlice = createSlice({
       state.user = null
       state.isAuthenticated = false
 
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        document.cookie = 'token=; Path=/; Max-Age=0; SameSite=Lax'
-      }
+      if (typeof window !== 'undefined') clearSession()
     },
   },
 })

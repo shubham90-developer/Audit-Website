@@ -43,8 +43,10 @@ const SignIn = () => {
 
           {/* TEXT */}
           <div className="position-absolute bottom-0 p-5 text-white">
-            <h2 className="fw-bold text-white">Nature’s Finest Dry Fruits & Nuts 🌰</h2>
-            <p className="mb-0">Discover premium quality nuts, seeds, and healthy snacks for everyday wellness.</p>
+            <h2 className="fw-bold text-white">Trusted Audit, Tax & Accounting Experts in the UAE</h2>
+            <p className="mb-0">
+              Accurate audits, VAT and corporate tax compliance, and business advisory to keep your company financially confident.
+            </p>
           </div>
         </Col>
       </Row>

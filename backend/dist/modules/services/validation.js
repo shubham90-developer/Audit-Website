@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateServiceSchema = exports.createServiceSchema = void 0;
+exports.updateServicesBannerSchema = exports.updateServiceSchema = exports.createServiceSchema = void 0;
 const zod_1 = require("zod");
 const localizedString = zod_1.z.object({
     en: zod_1.z.string().trim().min(1, "English value is required"),
@@ -26,4 +26,8 @@ exports.updateServiceSchema = zod_1.z.object({
         description: localizedString,
     }))
         .optional(),
+});
+exports.updateServicesBannerSchema = zod_1.z.object({
+    title: localizedString.optional(),
+    subtitle: localizedString.optional(),
 });

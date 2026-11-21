@@ -23,8 +23,10 @@ const enquiry_routes_1 = require("../modules/enquiries/enquiry.routes");
 const route_5 = require("../modules/contact-content/route");
 const legal_routes_1 = require("../modules/P&T/legal.routes");
 const route_6 = require("../modules/settings/route");
+const admin_routes_1 = require("../modules/admin-auth/admin.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
+    { path: "/admin-auth", route: admin_routes_1.adminAuthRouter },
     {
         path: "/banners",
         route: bannerRoute_1.homeBnnerRouter,

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Service = void 0;
+exports.ServicesBanner = exports.Service = void 0;
 const mongoose_1 = require("mongoose");
 const localizedString = {
     en: { type: String, required: true, trim: true },
@@ -34,3 +34,10 @@ const serviceSchema = new mongoose_1.Schema({
     },
 }, { timestamps: true });
 exports.Service = (0, mongoose_1.model)("Service", serviceSchema);
+// Singleton document: the banner shown at the top of the /services page.
+const servicesBannerSchema = new mongoose_1.Schema({
+    title: localizedString,
+    subtitle: localizedString,
+    bgImage: localizedMedia,
+}, { timestamps: true });
+exports.ServicesBanner = (0, mongoose_1.model)("ServicesBanner", servicesBannerSchema);

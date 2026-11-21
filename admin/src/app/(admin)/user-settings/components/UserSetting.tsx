@@ -7,6 +7,8 @@ import { Card, CardBody, CardHeader, CardTitle, Col, Row } from 'react-bootstrap
 import { toast } from 'react-toastify'
 
 import { useChangeCredentialsMutation, useGetMeQuery } from '@/store/apiSlice'
+import { setCredentials } from '@/store/authSlice'
+import { useAppDispatch } from '@/hooks/useAppDispatch'
 
 interface CredentialsFormState {
   currentPassword: string
@@ -23,6 +25,8 @@ const initialFormData: CredentialsFormState = {
 }
 
 const UserSetting = () => {
+  const dispatch = useAppDispatch()
+
   const { data: meData, isLoading, isError } = useGetMeQuery()
 
   const [changeCredentials, { isLoading: isSubmitting }] = useChangeCredentialsMutation()
@@ -104,12 +108,8 @@ const UserSetting = () => {
 
       toast.success(res.message || 'Credentials updated successfully')
 
-      // =============================================
-      // NEW TOKEN
-      // =============================================
-      // The backend returns a fresh token (res.token). Save it the same
-      // way you do after login so the admin stays signed in, e.g.:
-      // dispatch(setCredentials({ token: res.token, admin: res.data }))
+      // The old token is revoked server-side after a credential change; keep the session on the fresh one.
+      dispatch(setCredentials({ token: res.token, user: res.data }))
 
       // clear password fields, keep the (new) email
       setFormData((prev) => ({

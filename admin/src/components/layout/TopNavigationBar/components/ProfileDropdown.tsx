@@ -4,7 +4,7 @@ import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import { useAppDispatch } from '@/hooks/useAppDispatch'
 import { logout } from '@/store/authSlice'
-import { useGetSettingsQuery } from '@/store/settingApi'
+import { useGetSiteSettingsQuery } from '@/store/siteSettingsApi'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Dropdown, DropdownHeader, DropdownItem, DropdownMenu, DropdownToggle } from 'react-bootstrap'
@@ -13,18 +13,10 @@ const ProfileDropdown = () => {
   const dispatch = useAppDispatch()
   const router = useRouter()
 
-  const { data: settingsResponse, isLoading } = useGetSettingsQuery()
+  const { data: settings } = useGetSiteSettingsQuery()
 
-  const settings = Array.isArray(settingsResponse) ? settingsResponse[0] : ((settingsResponse as any)?.data ?? settingsResponse)
-
-  const logoUrl = settings?.favicon || ''
-
-  // getSettings already returns ISetting[] (unwrapped in transformResponse)
-  // const { data: settingsData } = useGetSettingsQuery()
-
-  // const favicon = typeof settingsData?.[0]?.favicon === 'string' ? settingsData[0].favicon : null
-
-  // const profileImage = favicon || avatar1
+  // API returns favicon as { url, publicId }; fall back to the default avatar while loading / if unset
+  const profileImage = settings?.favicon?.url || avatar1
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -47,8 +39,9 @@ const ProfileDropdown = () => {
             className="rounded-circle"
             width={32}
             height={32}
-            src={logoUrl}
+            src={profileImage}
             alt="Profile"
+            unoptimized
             style={{
               objectFit: 'cover',
             }}
@@ -58,7 +51,7 @@ const ProfileDropdown = () => {
 
       <DropdownMenu className="dropdown-menu-end">
         <DropdownHeader as="h6" className="dropdown-header">
-          Welcome To Parwan!
+          Welcome To Audit!
         </DropdownHeader>
 
         <div className="dropdown-divider my-1" />
